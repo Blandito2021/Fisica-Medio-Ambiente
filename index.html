@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Física · Administración del Medio Ambiente</title>
+<meta name="description" content="Simulaciones interactivas de física para Administración del Medio Ambiente – UTP">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{
+  --bg:#f3f7f5; --card:#ffffff; --ink:#10261f; --muted:#52645d; --line:#d9e5df;
+  --green:#047857; --green-2:#10b981; --blue:#0284c7; --sun:#facc15;
+  --chip:#e7f5ee; --chip-ink:#065f46; --shadow:0 10px 30px rgba(6,78,59,.10);
+  --hero-1:#064e3b; --hero-2:#0f766e; --hero-3:#075985;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1512; --card:#13221d; --ink:#e6f2ec; --muted:#9db3aa; --line:#24392f;
+    --chip:#173328; --chip-ink:#86efac; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+
+/* ---------- Portada ---------- */
+.hero{position:relative;overflow:hidden;color:#fff;
+  background:radial-gradient(1200px 500px at 85% -10%,rgba(250,204,21,.22),transparent 60%),
+             linear-gradient(135deg,var(--hero-1) 0%,var(--hero-2) 55%,var(--hero-3) 100%);
+  padding:calc(48px + env(safe-area-inset-top,0px)) 20px 88px}
+.hero-in{max-width:1080px;margin:0 auto;position:relative;z-index:1}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.tag{font:700 .7rem/1 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22)}
+.hero h1{margin:0;font-weight:900;font-size:clamp(2.1rem,6vw,3.6rem);line-height:1.05;letter-spacing:-.02em}
+.hero h1 span{color:var(--sun)}
+.hero p.lead{max-width:640px;margin:16px 0 0;font-size:clamp(1rem,2.2vw,1.15rem);color:rgba(255,255,255,.88)}
+.hero-stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.stat{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;
+  background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);font-size:.9rem}
+.stat i{color:var(--sun);font-size:1.05rem}
+.hero svg.deco{position:absolute;right:-40px;bottom:-30px;width:min(560px,70vw);opacity:.22;pointer-events:none}
+.wave{position:absolute;left:0;right:0;bottom:-1px;height:60px;width:100%;display:block}
+.wave path{fill:var(--bg)}
+
+/* ---------- Contenido ---------- */
+main{max-width:1080px;margin:-40px auto 0;padding:0 20px 40px;position:relative;z-index:2}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:36px 0 14px}
+.sec-h h2{margin:0;font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.sec-h p{margin:0;color:var(--muted);font-size:.92rem}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:20px}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:20px;
+  overflow:hidden;box-shadow:var(--shadow);text-decoration:none;transition:transform .18s ease,box-shadow .18s ease}
+a.card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(6,78,59,.18)}
+a.card:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.thumb{position:relative;aspect-ratio:16/8;background:linear-gradient(135deg,#ecfdf5,#e0f2fe)}
+@media (prefers-color-scheme: dark){.thumb{background:linear-gradient(135deg,#0f2a22,#0c2433)}}
+.thumb svg{position:absolute;inset:0;width:100%;height:100%}
+.badge{position:absolute;top:12px;left:12px;font:700 .68rem/1 Inter,sans-serif;text-transform:uppercase;letter-spacing:.05em;
+  padding:6px 9px;border-radius:999px;background:var(--green);color:#fff;display:inline-flex;gap:6px;align-items:center}
+.badge.soon{background:#64748b}
+.body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.body h3{margin:0;font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
+.body p{margin:0;color:var(--muted);font-size:.93rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 .74rem/1 Inter,sans-serif;padding:6px 9px;border-radius:8px;background:var(--chip);color:var(--chip-ink)}
+.meta{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;color:var(--muted)}
+.meta i{color:var(--green-2);margin-right:5px}
+.go{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 16px;border-radius:12px;
+  background:linear-gradient(135deg,var(--green),var(--hero-2));color:#fff;font-weight:700}
+.card.soon-card{opacity:.75;border-style:dashed;box-shadow:none}
+.card.soon-card .go{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+
+/* ---------- Cómo usar ---------- */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+.step .ic{flex:0 0 42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.05rem;color:#fff;
+  background:linear-gradient(135deg,var(--green-2),var(--blue))}
+.step b{display:block;margin-bottom:2px}
+.step span{color:var(--muted);font-size:.88rem}
+
+footer{max-width:1080px;margin:0 auto;padding:22px 20px calc(30px + env(safe-area-inset-bottom,0px));
+  color:var(--muted);font-size:.82rem;text-align:center;border-top:1px solid var(--line)}
+footer i{color:var(--green-2)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="deco" viewBox="0 0 560 300" aria-hidden="true">
+    <path d="M10 280 C 160 270, 260 200, 330 120 S 470 20, 550 10" fill="none" stroke="#fff" stroke-width="5"/>
+    <line x1="120" y1="292" x2="470" y2="40" stroke="#facc15" stroke-width="4" stroke-dasharray="10 8"/>
+    <circle cx="330" cy="120" r="10" fill="#facc15"/>
+    <g stroke="#fff" stroke-width="1" opacity=".5">
+      <line x1="0" y1="60" x2="560" y2="60"/><line x1="0" y1="140" x2="560" y2="140"/><line x1="0" y1="220" x2="560" y2="220"/>
+      <line x1="140" y1="0" x2="140" y2="300"/><line x1="280" y1="0" x2="280" y2="300"/><line x1="420" y1="0" x2="420" y2="300"/>
+    </g>
+  </svg>
+  <div class="hero-in">
+    <div class="tags">
+      <span class="tag"><i class="fa-solid fa-atom"></i> Física</span>
+      <span class="tag"><i class="fa-solid fa-leaf"></i> Administración del Medio Ambiente</span>
+      <span class="tag">UTP</span>
+    </div>
+    <h1>Laboratorio virtual de<br><span>Física ambiental</span></h1>
+    <p class="lead">Simulaciones interactivas para entender el movimiento con situaciones reales del ambiente: buses eléctricos, ciclistas, ríos y drones de monitoreo. Explora, mide, descubre y ponte a prueba.</p>
+    <div class="hero-stats">
+      <div class="stat"><i class="fa-solid fa-flask"></i> <span id="nSims">1 simulación</span></div>
+      <div class="stat"><i class="fa-solid fa-mobile-screen-button"></i> Funciona en celular y computador</div>
+      <div class="stat"><i class="fa-solid fa-user-check"></i> Sin registro ni instalación</div>
+    </div>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 30 C 240 70, 480 0, 720 25 S 1200 60, 1440 20 L1440 60 L0 60 Z"/>
+  </svg>
+</header>
+
+<main>
+  <div class="sec-h">
+    <h2><i class="fa-solid fa-play" style="color:var(--green-2)"></i> Simulaciones</h2>
+    <p>Haz clic en una tarjeta para abrirla.</p>
+  </div>
+  <div class="grid" id="grid"></div>
+
+  <div class="sec-h">
+    <h2><i class="fa-solid fa-route" style="color:var(--green-2)"></i> ¿Cómo trabajar cada simulación?</h2>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="ic"><i class="fa-solid fa-eye"></i></div><div><b>1. Observa</b><span>Elige una situación ambiental y mira cómo se mueve.</span></div></div>
+    <div class="step"><div class="ic"><i class="fa-solid fa-sliders"></i></div><div><b>2. Experimenta</b><span>Mueve los controles y anota lo que cambia en las gráficas.</span></div></div>
+    <div class="step"><div class="ic"><i class="fa-solid fa-lightbulb"></i></div><div><b>3. Comprende</b><span>Lee la teoría y relaciónala con lo que descubriste.</span></div></div>
+    <div class="step"><div class="ic"><i class="fa-solid fa-circle-check"></i></div><div><b>4. Ponte a prueba</b><span>Responde el quiz final y revisa tu nota de 1,0 a 5,0.</span></div></div>
+  </div>
+</main>
+
+<footer>
+  <i class="fa-solid fa-seedling"></i> Física para Administración del Medio Ambiente · UTP · <span id="yr"></span>
+</footer>
+
+<script>
+/* =====================================================================
+   PARA AGREGAR UNA SIMULACIÓN NUEVA: copia un bloque { ... } de esta
+   lista, cambia sus datos y pon en "url" la carpeta/archivo subido al
+   repositorio. Con "pronto: true" la tarjeta sale como "Próximamente".
+   ===================================================================== */
+const SIMS = [
+  {
+    titulo: 'Velocidad instantánea',
+    url: 'Simulacion_Velocidad_Instantanea/simulacion_velocidad_instantanea.html',
+    resumen: '¿Qué tan rápido va algo justo ahora? Achica el intervalo de tiempo hasta casi cero y mira cómo la recta secante se convierte en la tangente.',
+    temas: ['Velocidad media', 'Secante → tangente', 'Límite Δt → 0', 'Gráfica v–t'],
+    tiempo: '45–60 min',
+    extra: 'Quiz con nota',
+    dibujo: 'tangente'
+  },
+  // { titulo: 'Caída libre', url: '', resumen: '...', temas: ['...'], tiempo: '', extra: '', dibujo: 'parabola', pronto: true },
+];
+
+const DIBUJOS = {
+  tangente: `
+    <svg viewBox="0 0 320 160" aria-hidden="true">
+      <g stroke="#94a3b8" stroke-opacity=".35" stroke-width="1">
+        <line x1="40" y1="40" x2="300" y2="40"/><line x1="40" y1="80" x2="300" y2="80"/><line x1="40" y1="120" x2="300" y2="120"/>
+        <line x1="105" y1="20" x2="105" y2="140"/><line x1="170" y1="20" x2="170" y2="140"/><line x1="235" y1="20" x2="235" y2="140"/>
+      </g>
+      <line x1="40" y1="140" x2="305" y2="140" stroke="#334155" stroke-width="2"/>
+      <line x1="40" y1="140" x2="40" y2="15" stroke="#334155" stroke-width="2"/>
+      <path d="M40 138 Q 170 130 290 25" fill="none" stroke="#047857" stroke-width="4" stroke-linecap="round"/>
+      <line x1="120" y1="135" x2="290" y2="32" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 6"/>
+      <line x1="95" y1="139.5" x2="300" y2="43.6" stroke="#dc2626" stroke-width="3"/>
+      <circle cx="172" cy="103.5" r="6.5" fill="#dc2626" stroke="#fff" stroke-width="2"/>
+      <circle cx="254" cy="54" r="6" fill="#0284c7" stroke="#fff" stroke-width="2"/>
+      <text x="50" y="30" font-family="Fira Code,monospace" font-size="13" fill="#047857" font-weight="600">x(t)</text>
+      <text x="176" y="124" font-family="Fira Code,monospace" font-size="12" fill="#dc2626" font-weight="600">P</text>
+      <text x="260" y="72" font-family="Fira Code,monospace" font-size="12" fill="#0284c7" font-weight="600">Q</text>
+    </svg>`,
+  parabola: `
+    <svg viewBox="0 0 320 160" aria-hidden="true">
+      <line x1="40" y1="140" x2="305" y2="140" stroke="#334155" stroke-width="2"/>
+      <line x1="40" y1="140" x2="40" y2="15" stroke="#334155" stroke-width="2"/>
+      <path d="M40 30 Q 170 40 290 135" fill="none" stroke="#64748b" stroke-width="4" stroke-dasharray="3 7" stroke-linecap="round"/>
+    </svg>`
+};
+
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const grid = document.getElementById('grid');
+grid.innerHTML = SIMS.map(s => {
+  const pronto = !!s.pronto || !s.url;
+  const tag = pronto ? 'div' : 'a';
+  const href = pronto ? '' : ` href="${esc(s.url)}"`;
+  return `
+  <${tag} class="card${pronto ? ' soon-card' : ''}"${href}>
+    <div class="thumb">
+      ${DIBUJOS[s.dibujo] || DIBUJOS.tangente}
+      <span class="badge${pronto ? ' soon' : ''}"><i class="fa-solid ${pronto ? 'fa-hourglass-half' : 'fa-circle-play'}"></i> ${pronto ? 'Próximamente' : 'Disponible'}</span>
+    </div>
+    <div class="body">
+      <h3>${esc(s.titulo)}</h3>
+      <p>${esc(s.resumen)}</p>
+      <div class="chips">${(s.temas || []).map(t => `<span class="chip">${esc(t)}</span>`).join('')}</div>
+      <div class="meta">
+        ${s.tiempo ? `<span><i class="fa-regular fa-clock"></i>${esc(s.tiempo)}</span>` : ''}
+        ${s.extra ? `<span><i class="fa-solid fa-star"></i>${esc(s.extra)}</span>` : ''}
+      </div>
+      <span class="go">${pronto ? 'En preparación' : 'Abrir simulación <i class="fa-solid fa-arrow-right"></i>'}</span>
+    </div>
+  </${tag}>`;
+}).join('');
+
+const disp = SIMS.filter(s => !s.pronto && s.url).length;
+document.getElementById('nSims').textContent = disp === 1 ? '1 simulación' : `${disp} simulaciones`;
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
