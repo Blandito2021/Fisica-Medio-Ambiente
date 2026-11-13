@@ -1,0 +1,1809 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velocidad instantánea</title>
+<meta name="description" content="Simulación interactiva: de la velocidad media a la velocidad instantánea. Física para Administración del Medio Ambiente, UTP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+:root {
+  --verde: #047857; --verde-2: #10b981; --azul: #2563eb; --rojo: #dc2626;
+  --naranja: #ea580c; --morado: #7c3aed; --gris: #64748b; --curva: #059669;
+  --bg: #eef4f1; --card: #ffffff; --ink: #0f172a; --muted: #475569; --line: #dbe3ea;
+  /* plano GeoGebra */
+  --gg-bg: #ffffff; --gg-bar: #f3f5f8; --gg-line: #d6dde6; --gg-ink: #1f2937;
+  --gg-muted: #5b6573; --gg-press: #dbeafe; --gg-press-ink: #1d4ed8;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.55 Inter, system-ui, sans-serif; }
+h1, h2, h3 { line-height: 1.15; }
+button { font: inherit; }
+.fira { font-family: "Fira Code", monospace; }
+
+/* ---------- Portada ---------- */
+.hero {
+  position: relative; overflow: hidden; color: #fff;
+  background:
+    radial-gradient(900px 400px at 85% -10%, rgba(56, 189, 248, .45), transparent 60%),
+    radial-gradient(700px 380px at 0% 110%, rgba(16, 185, 129, .55), transparent 60%),
+    linear-gradient(135deg, #052e2b 0%, #065f46 45%, #075985 100%);
+  padding: 40px 16px 84px;
+}
+.hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 70px;
+  background: var(--bg); clip-path: polygon(0 60%, 18% 30%, 35% 55%, 55% 20%, 72% 50%, 88% 25%, 100% 45%, 100% 100%, 0 100%);
+}
+.hero-in { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.35fr 1fr; gap: 28px; align-items: center; position: relative; z-index: 1; }
+.kicker { display: flex; flex-wrap: wrap; gap: 8px; }
+.kicker span { font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); padding: 4px 10px; border-radius: 999px; }
+.hero h1 { font-size: clamp(2.3rem, 6vw, 4rem); font-weight: 900; margin: .35em 0 .2em; letter-spacing: -.02em; }
+.hero h1 em { font-style: normal; background: linear-gradient(90deg, #fde047, #fb923c); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .lead { font-size: 1.15rem; max-width: 640px; opacity: .95; margin: 0 0 18px; }
+.hero-q { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22); border-radius: 16px; padding: 14px 16px; backdrop-filter: blur(6px); max-width: 640px; }
+.hero-q b { color: #fde047; }
+.cta { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; background: #fde047; color: #052e2b; font-weight: 800; padding: 12px 20px; border-radius: 999px; text-decoration: none; box-shadow: 0 10px 24px rgba(0,0,0,.25); transition: transform .15s; }
+.cta:hover { transform: translateY(-2px); }
+.hero-fig { display: grid; place-items: center; }
+.hero-fig svg { width: min(100%, 380px); height: auto; filter: drop-shadow(0 18px 30px rgba(0,0,0,.35)); }
+#heroNeedle { transform-box: view-box; transform-origin: 160px 170px; animation: swing 5s ease-in-out infinite alternate; }
+@keyframes swing { 0% { transform: rotate(-78deg); } 35% { transform: rotate(-10deg); } 60% { transform: rotate(25deg); } 100% { transform: rotate(70deg); } }
+@media (prefers-reduced-motion: reduce) { #heroNeedle { animation: none; } html { scroll-behavior: auto; } }
+
+/* ---------- Ruta ---------- */
+nav.ruta { position: sticky; top: 0; z-index: 30; background: rgba(255,255,255,.93); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.ruta-in { max-width: 1180px; margin: 0 auto; display: flex; gap: 6px; overflow-x: auto; padding: 8px 16px; scrollbar-width: none; }
+.ruta a { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: .88rem; padding: 6px 12px 6px 6px; border-radius: 999px; border: 1px solid var(--line); background: #fff; }
+.ruta a:hover, .ruta a.on { border-color: var(--verde); background: #ecfdf5; color: var(--verde); }
+.ruta a span { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--verde); color: #fff; font-size: .78rem; font-weight: 800; }
+
+main { max-width: 1180px; margin: 20px auto 40px; padding: 0 16px; display: flex; flex-direction: column; gap: 22px; position: relative; z-index: 2; }
+.card { background: var(--card); border-radius: 20px; box-shadow: 0 12px 34px rgba(2, 44, 34, .08); padding: 22px; border: 1px solid #e1eae6; scroll-margin-top: 64px; }
+.sec-h { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+.sec-h .num { flex: 0 0 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, var(--verde), #0ea5e9); color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 1.3rem; box-shadow: 0 6px 14px rgba(4,120,87,.3); }
+.sec-h h2 { margin: 0; font-size: 1.5rem; }
+.sec-h p { margin: .25em 0 0; color: var(--muted); }
+
+/* Código de colores */
+.colores { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: .9rem; }
+.colores b { margin-right: 4px; }
+.cc { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cc i.l { width: 22px; height: 0; border-top: 4px solid; border-radius: 2px; display: inline-block; }
+.cc i.l.d { border-top-style: dashed; }
+
+/* ---------- Escena ---------- */
+.escenarios { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.esc-btn { min-width: 0; overflow-wrap: anywhere; border: 2px solid var(--line); background: #fff; border-radius: 16px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; cursor: pointer; text-align: left; color: var(--ink); transition: border-color .15s, box-shadow .15s, transform .15s; }
+.esc-btn:hover { transform: translateY(-2px); }
+.esc-btn .ic { flex: 0 0 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 1.25rem; background: #ecfdf5; color: var(--verde); }
+.esc-btn b { display: block; font-size: .95rem; }
+.esc-btn small { color: var(--muted); font-size: .78rem; }
+.esc-btn[aria-checked="true"] { border-color: var(--verde); background: #f0fdf4; box-shadow: 0 0 0 4px rgba(4,120,87,.14); }
+.esc-btn[aria-checked="true"] .ic { background: var(--verde); color: #fff; }
+.situacion { display: grid; grid-template-columns: 1fr auto; gap: 10px 18px; align-items: center; background: linear-gradient(90deg, #f0fdf4, #eff6ff); border: 1px solid #d1fae5; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; }
+.situacion p { margin: 0; }
+.situacion .preg { grid-column: 1 / -1; font-weight: 700; color: #065f46; }
+.situacion .fx { font-size: 1.05rem; background: #fff; border-radius: 10px; padding: 6px 12px; border: 1px solid var(--line); white-space: nowrap; }
+.escena-grid { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 14px; }
+.escena-wrap { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); height: 330px; position: relative; background: #cfe9fb; }
+.escena-wrap canvas { width: 100%; height: 100%; display: block; }
+.tablero { background: radial-gradient(circle at 50% 0%, #1e293b, #0b1220 70%); color: #e2e8f0; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; box-shadow: inset 0 0 0 1px #1f2a3d; }
+.tablero h3 { margin: 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; display: flex; justify-content: space-between; }
+.tablero canvas { width: 100%; height: 150px; display: block; }
+.dig-main { text-align: center; font: 600 2.1rem/1 "Fira Code", monospace; color: #fca5a5; text-shadow: 0 0 14px rgba(248,113,113,.55); }
+.dig-main small { font-size: .9rem; color: #fecaca; }
+.dig-sub { text-align: center; font: 500 .9rem "Fira Code", monospace; color: #cbd5e1; }
+.dig-grid { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; font-size: .82rem; border-top: 1px solid #1f2a3d; padding-top: 8px; margin-top: 2px; }
+.dig-grid b { font: 600 .9rem "Fira Code", monospace; color: #f8fafc; text-align: right; }
+.dig-grid .vm b { color: #93c5fd; }
+.dir { display: inline-block; padding: 1px 8px; border-radius: 999px; background: #1e293b; font-size: .78rem; }
+
+.controles { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; margin-top: 12px; }
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: .9rem; transition: background .15s, transform .1s; }
+.btn:hover { background: #f1f5f9; }
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--verde); border-color: var(--verde); color: #fff; }
+.btn.primary:hover { background: #065f46; }
+.btn.azul { background: var(--azul); border-color: var(--azul); color: #fff; }
+.btn.azul:hover { background: #1d4ed8; }
+.btn.busy { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.tslider { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; font-size: .9rem; }
+.tslider input { flex: 1; }
+input[type="range"] { accent-color: var(--verde); }
+select { font: inherit; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; background: #fff; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; font-size: .84rem; cursor: pointer; background: #fff; user-select: none; }
+.chip input { accent-color: var(--verde); margin: 0; }
+.chip:has(input:checked) { background: #ecfdf5; border-color: #6ee7b7; }
+
+/* Recuadros didácticos */
+.callout { border-radius: 14px; padding: 12px 16px; margin-top: 14px; border: 1px solid; display: flex; gap: 12px; align-items: flex-start; }
+.callout > i { font-size: 1.25rem; margin-top: 2px; }
+.callout p { margin: 0 0 .4em; }
+.callout p:last-child, .callout ul:last-child, .callout ol:last-child { margin-bottom: 0; }
+.callout ol, .callout ul { margin: .2em 0 .2em; padding-left: 1.2em; }
+.callout.idea { background: #fffbeb; border-color: #fde68a; }
+.callout.idea > i { color: #d97706; }
+.callout.clave { background: #ecfdf5; border-color: #a7f3d0; }
+.callout.clave > i { color: var(--verde); }
+.callout.explora { background: #eff6ff; border-color: #bfdbfe; }
+.callout.explora > i { color: var(--azul); }
+.callout.ojo { background: #fef2f2; border-color: #fecaca; }
+.callout.ojo > i { color: var(--rojo); }
+
+/* ---------- Laboratorios con gráficas ---------- */
+.lab-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.panel { display: flex; flex-direction: column; gap: 12px; }
+.ctl { background: #f8fafc; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.ctl label { display: flex; justify-content: space-between; gap: 8px; font-size: .9rem; font-weight: 600; }
+.ctl label b { font-family: "Fira Code", monospace; color: var(--verde); }
+.ctl input[type="range"] { width: 100%; margin: 6px 0 0; }
+.ctl .hint { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.lecturas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.lec { background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; padding: 7px 11px; }
+.lec small { display: block; color: var(--muted); font-size: .76rem; font-weight: 600; }
+.lec b { font: 600 1.05rem "Fira Code", monospace; }
+.lec.wide { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lec.wide b { font-size: 1.35rem; }
+.lec.vm { background: #eff6ff; border-color: #bfdbfe; } .lec.vm b { color: var(--azul); }
+.lec.vi { background: #fef2f2; border-color: #fecaca; } .lec.vi b { color: var(--rojo); }
+.lec.dl { background: #fff7ed; border-color: #fed7aa; } .lec.dl b { color: var(--naranja); }
+.lock { font-size: .82rem; color: #9f1239; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; }
+.diff-chip { font: 600 .95rem "Fira Code", monospace; padding: 2px 10px; border-radius: 999px; }
+.diff-chip.r { background: #fee2e2; color: #b91c1c; } .diff-chip.a { background: #fef3c7; color: #b45309; } .diff-chip.g { background: #dcfce7; color: #15803d; }
+.f-live { background: #0f172a; color: #e2e8f0; border-radius: 12px; padding: 10px 12px; font: 500 .9rem/1.6 "Fira Code", monospace; overflow-x: auto; white-space: nowrap; }
+.f-live .b { color: #93c5fd; } .f-live .o { color: #fdba74; } .f-live .r { color: #fca5a5; }
+.reveal-anim { animation: pop .6s ease; }
+@keyframes pop { 0% { transform: scale(.9); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+/* Tabla */
+.tabla-wrap { margin-top: 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+table.datos { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 560px; }
+table.datos th { background: #f1f5f9; text-align: right; padding: 8px 12px; font-weight: 700; font-size: .82rem; color: #334155; }
+table.datos th:first-child, table.datos td:first-child { text-align: center; }
+table.datos td { padding: 6px 12px; text-align: right; font-family: "Fira Code", monospace; border-top: 1px solid #eef2f6; }
+table.datos td.vm { color: var(--azul); font-weight: 600; }
+table.datos tr.new td { animation: flash 1.2s ease; }
+@keyframes flash { 0% { background: #fef9c3; } 100% { background: transparent; } }
+table.datos tfoot td { font-family: Inter, sans-serif; text-align: left; color: var(--muted); font-size: .84rem; background: #fafafa; }
+.empty td { text-align: center !important; color: var(--muted); font-family: Inter, sans-serif !important; padding: 16px !important; }
+.tabla-h { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.tabla-h h3 { margin: 0; font-size: 1.1rem; }
+
+/* ---------- Plano estilo GeoGebra ---------- */
+.gg-graph { position: relative; background: var(--gg-bg); border: 1px solid var(--gg-line); border-radius: 14px; overflow: hidden; color: var(--gg-ink); font-family: Inter, system-ui, sans-serif; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
+.gg-bar { display: flex; align-items: center; gap: 2px; padding: 4px 5px 4px 10px; background: var(--gg-bar); border-bottom: 1px solid var(--gg-line); min-height: 36px; }
+.gg-title { flex: 1 1 auto; min-width: 0; font: 700 .82rem/1.2 Inter, system-ui, sans-serif; color: var(--gg-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gg-tools { display: inline-flex; gap: 1px; flex: 0 0 auto; }
+.gg-tools button { width: 28px; height: 28px; padding: 0; display: inline-grid; place-items: center; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--gg-muted); font-size: .78rem; cursor: pointer; }
+.gg-tools button:hover { background: var(--gg-line); color: var(--gg-ink); }
+.gg-tools button[aria-pressed="true"] { background: var(--gg-press); border-color: #93c5fd; color: var(--gg-press-ink); }
+.gg-tools button:focus-visible { outline: 2px solid var(--gg-press-ink); outline-offset: 1px; }
+.gg-box { position: relative; height: 320px; background: var(--gg-bg); }
+.gg-big .gg-box { height: 400px; }
+.gg-box canvas { width: 100%; height: 100%; display: block; outline: none; }
+.gg-box canvas:focus-visible { box-shadow: inset 0 0 0 2px #93c5fd; }
+.gg-coord { position: absolute; left: 6px; bottom: 5px; font: 500 11px "Fira Code", monospace; color: var(--gg-ink); background: rgba(255,255,255,.9); padding: 1px 6px; border-radius: 4px; pointer-events: none; }
+.gg-tip { position: absolute; z-index: 4; max-width: 240px; background: #fff; color: var(--gg-ink); border: 1px solid var(--gg-line); border-radius: 8px; box-shadow: 0 6px 18px rgba(15,23,42,.18); padding: 6px 8px; font: 500 11.5px/1.35 Inter, system-ui, sans-serif; pointer-events: none; }
+.gg-tip .sw { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.gg-tip div { font-family: "Fira Code", monospace; font-size: 11px; }
+.gg-tip .tip-pin { font-family: Inter, sans-serif; color: var(--gg-muted); font-size: 10px; margin-top: 2px; }
+.gg-legend { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 4px 8px 5px; border-top: 1px solid var(--gg-line); background: var(--gg-bg); font: 500 11.5px/1.3 Inter, system-ui, sans-serif; }
+.gg-legend:empty { display: none; }
+.gg-legend .lg-it { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; color: var(--gg-ink); font: inherit; padding: 2px 3px; cursor: pointer; border-radius: 4px; }
+.gg-legend .lg-it:hover { background: var(--gg-bar); }
+.gg-legend .lg-it.off { opacity: .4; text-decoration: line-through; }
+.gg-legend .lg-ln { display: inline-block; width: 18px; height: 0; }
+.gg-legend .lg-pt { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.gg-legend .lg-area { display: inline-block; width: 13px; height: 9px; border-radius: 2px; opacity: .45; }
+.gg-pal { position: absolute; right: 5px; top: 5px; z-index: 6; width: 215px; max-height: calc(100% - 10px); overflow: auto; background: #fff; color: var(--gg-ink); border: 1px solid #cbd5e1; border-radius: 10px; box-shadow: 0 10px 26px rgba(15,23,42,.22); padding: 7px 9px; font: 500 11px/1.35 Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 4px; }
+.gg-pal[hidden] { display: none; }
+.gg-pal-h { display: flex; justify-content: space-between; align-items: center; }
+.gg-pal-h button { border: 0; background: transparent; cursor: pointer; font-size: 13px; color: var(--gg-muted); }
+.gg-pal label { display: flex; flex-direction: column; gap: 2px; }
+.gg-pal label.gg-chk { flex-direction: row; align-items: center; gap: 5px; }
+.gg-pal select, .gg-pal input[type="range"] { width: 100%; font: inherit; }
+.gg-pal select { border: 1px solid var(--gg-line); border-radius: 5px; padding: 2px; background: #fff; color: var(--gg-ink); }
+.gg-lbl { font-weight: 700; color: var(--gg-muted); margin-top: 2px; }
+.gg-sw { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.gg-sw button { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #cbd5e1; cursor: pointer; padding: 0; }
+.gg-sw button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--gg-ink); }
+.gg-sw input[type="color"] { width: 22px; height: 20px; border: 0; padding: 0; background: transparent; cursor: pointer; }
+.gg-seg { display: flex; border: 1px solid var(--gg-line); border-radius: 6px; overflow: hidden; }
+.gg-seg button { flex: 1; border: 0; background: #fff; color: var(--gg-ink); padding: 2px 0; cursor: pointer; font-size: 10px; }
+.gg-seg button + button { border-left: 1px solid var(--gg-line); }
+.gg-seg button[aria-pressed="true"] { background: var(--gg-press); color: var(--gg-press-ink); font-weight: 700; }
+.gg-reset { border: 1px solid var(--gg-line); background: var(--gg-bar); color: var(--gg-ink); border-radius: 6px; padding: 3px; cursor: pointer; font: inherit; }
+.gg-note { font-size: .78rem; color: var(--muted); margin: 6px 2px 0; }
+
+/* ---------- Teoría ---------- */
+.teoria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; }
+.t-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; background: linear-gradient(180deg, #fff, #f8fafc); }
+.t-card h3 { margin: 0 0 .5em; font-size: 1.08rem; display: flex; gap: 10px; align-items: center; }
+.t-card h3 .n { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; background: var(--verde); font-size: .85rem; flex: 0 0 auto; }
+.t-card p { margin: .4em 0; }
+.t-card.wide { grid-column: 1 / -1; }
+.pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; counter-reset: paso; }
+.paso { background: #fff; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 10px 12px; position: relative; }
+.paso::before { counter-increment: paso; content: "Paso " counter(paso); display: block; font-size: .72rem; font-weight: 800; color: var(--verde); text-transform: uppercase; letter-spacing: .06em; }
+.amb { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.amb div { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.amb i { color: var(--verde); font-size: 1.3rem; }
+.amb b { display: block; margin: 4px 0 2px; }
+.amb p { margin: 0; font-size: .92rem; color: #334155; }
+.katex-display { position: relative; margin: .5em 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+
+/* ---------- Reto ---------- */
+.score { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.score .pill { background: #0f172a; color: #fff; border-radius: 999px; padding: 6px 14px; font-weight: 700; }
+.score .bar { flex: 1 1 200px; height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+.score .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--verde-2), var(--azul)); transition: width .4s; }
+.q { border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; }
+.q h3 { margin: 0 0 10px; font-size: 1rem; display: flex; gap: 10px; }
+.q h3 span { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #e0f2fe; color: #075985; font-size: .82rem; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+.opt { text-align: left; border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 9px 12px; cursor: pointer; color: var(--ink); transition: border-color .15s, background .15s; }
+.opt:hover:not(:disabled) { border-color: #93c5fd; background: #f8fbff; }
+.opt:disabled { cursor: default; }
+.opt.ok { border-color: #16a34a; background: #f0fdf4; }
+.opt.bad { border-color: #dc2626; background: #fef2f2; }
+.fb { margin-top: 10px; padding: 9px 12px; border-radius: 10px; font-size: .93rem; }
+.fb.ok { background: #f0fdf4; color: #14532d; }
+.fb.bad { background: #fef2f2; color: #7f1d1d; }
+.final { border-radius: 16px; padding: 16px; background: linear-gradient(135deg, #ecfdf5, #eff6ff); border: 1px solid #bbf7d0; display: none; }
+.final.show { display: block; }
+
+/* toast */
+.toast { width: max-content; text-align: center; position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140%); background: #0f172a; color: #fff; padding: 12px 18px; border-radius: 14px; box-shadow: 0 14px 30px rgba(0,0,0,.3); z-index: 50; transition: transform .35s; font-weight: 600; max-width: calc(100% - 32px); }
+.toast.show { transform: translate(-50%, 0); }
+
+footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 10px 16px 40px; }
+
+@media (max-width: 980px) {
+  .hero-in { grid-template-columns: 1fr; }
+  .hero-fig { order: -1; }
+  .hero-fig svg { width: min(70%, 280px); }
+  .escena-grid, .lab-grid { grid-template-columns: minmax(0, 1fr); }
+  .tablero { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+  .tablero h3, .tablero .dig-grid { grid-column: 1 / -1; }
+  .tablero canvas { grid-row: span 2; }
+}
+@media (max-width: 760px) {
+  .escenarios { grid-template-columns: repeat(2, 1fr); }
+  .escena-wrap { height: 250px; }
+  .gg-box, .gg-big .gg-box { height: 290px; }
+  .gg-tools button { width: 32px; height: 32px; }
+  .card { padding: 16px; }
+  .situacion { grid-template-columns: 1fr; }
+  .tablero { grid-template-columns: 1fr; }
+  .tablero canvas { grid-row: auto; }
+}
+@media (max-width: 420px) {
+  .esc-btn small { display: none; }
+  .esc-btn { padding: 8px; gap: 7px; }
+  .esc-btn .ic { flex-basis: 34px; height: 34px; font-size: 1rem; }
+  .esc-btn b { font-size: .84rem; }
+  .gg-bar { flex-wrap: wrap; }
+  .gg-title { flex-basis: 100%; }
+  .sec-h .num { flex-basis: 40px; height: 40px; }
+  .sec-h h2 { font-size: 1.25rem; }
+  .lecturas { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div>
+      <div class="kicker"><span>Física</span><span>Administración del Medio Ambiente</span><span>UTP</span></div>
+      <h1>Velocidad <em>instantánea</em></h1>
+      <p class="lead">¿Qué tan rápido va algo <b>justo ahora</b>? Un promedio no basta: vamos a encoger el intervalo de tiempo hasta casi cero y veremos aparecer la velocidad de un instante.</p>
+      <div class="hero-q"><i class="fas fa-circle-question"></i> Un bus recorre 12 km en 30 min: su velocidad media es <b>24 km/h</b>. Pero en un semáforo iba a 0 km/h y en la avenida a 50 km/h. <b>¿Cuál es la velocidad del bus en un instante?</b> Eso es lo que marca el velocímetro.</div>
+      <a class="cta" href="#s-escena"><i class="fas fa-play"></i> Empezar a explorar</a>
+    </div>
+    <div class="hero-fig" aria-hidden="true">
+      <svg viewBox="0 0 320 210">
+        <defs>
+          <linearGradient id="hg" x1="0" x2="1"><stop offset="0" stop-color="#22c55e"/><stop offset=".55" stop-color="#facc15"/><stop offset="1" stop-color="#ef4444"/></linearGradient>
+          <radialGradient id="hb" cx=".5" cy=".9" r=".9"><stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#020617"/></radialGradient>
+        </defs>
+        <path d="M20 180 A140 140 0 0 1 300 180 L300 200 L20 200 Z" fill="url(#hb)" stroke="#334155" stroke-width="3"/>
+        <path d="M40 170 A120 120 0 0 1 280 170" fill="none" stroke="url(#hg)" stroke-width="14" stroke-linecap="round"/>
+        <g id="heroTicks" stroke="#e2e8f0" stroke-width="2"></g>
+        <g id="heroNums" fill="#e2e8f0" font-family="Fira Code, monospace" font-size="12" text-anchor="middle"></g>
+        <text x="160" y="140" fill="#94a3b8" font-family="Inter" font-size="13" text-anchor="middle" font-weight="700">km/h</text>
+        <g id="heroNeedle"><path d="M156 170 L160 62 L164 170 Z" fill="#f87171"/></g>
+        <circle cx="160" cy="170" r="11" fill="#f8fafc"/><circle cx="160" cy="170" r="5" fill="#ef4444"/>
+        <text x="160" y="196" fill="#fde047" font-family="Fira Code, monospace" font-size="15" text-anchor="middle" font-weight="600">v = lím Δx/Δt</text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<nav class="ruta" aria-label="Ruta de aprendizaje">
+  <div class="ruta-in">
+    <a href="#s-escena"><span>1</span>Observa</a>
+    <a href="#s-secante"><span>2</span>Encoge Δt</a>
+    <a href="#s-micro"><span>3</span>Microscopio</a>
+    <a href="#s-vt"><span>4</span>Gráfica v–t</a>
+    <a href="#s-teoria"><span>5</span>Teoría</a>
+    <a href="#s-reto"><span>6</span>Ponte a prueba</a>
+  </div>
+</nav>
+
+<main>
+  <!-- Código de colores -->
+  <section class="card" style="padding:14px 20px">
+    <div class="colores">
+      <b><i class="fas fa-palette"></i> Código de colores:</b>
+      <span class="cc"><i class="l" style="border-color:var(--curva)"></i> posición x(t)</span>
+      <span class="cc"><i class="l d" style="border-color:var(--azul)"></i> velocidad <b>media</b> (secante)</span>
+      <span class="cc"><i class="l" style="border-color:var(--rojo)"></i> velocidad <b>instantánea</b> (tangente)</span>
+      <span class="cc"><i class="l" style="border-color:var(--naranja)"></i> cambios Δt y Δx</span>
+      <span class="cc"><i class="l" style="border-color:var(--morado)"></i> velocidad v(t)</span>
+    </div>
+  </section>
+
+  <!-- 1. ESCENA -->
+  <section class="card" id="s-escena">
+    <div class="sec-h"><span class="num">1</span><div><h2>Observa el movimiento</h2><p>Elige una situación ambiental, dale play y mira el velocímetro: cambia a cada instante.</p></div></div>
+
+    <div class="escenarios" role="radiogroup" aria-label="Situación">
+      <button class="esc-btn" role="radio" data-esc="bus"><span class="ic"><i class="fas fa-bus"></i></span><span><b>Bus eléctrico</b><small>arranca del paradero</small></span></button>
+      <button class="esc-btn" role="radio" data-esc="bici"><span class="ic"><i class="fas fa-person-biking"></i></span><span><b>Ciclista</b><small>ciclovía con lomas</small></span></button>
+      <button class="esc-btn" role="radio" data-esc="tronco"><span class="ic"><i class="fas fa-water"></i></span><span><b>Flotador en el río</b><small>entra a un remanso</small></span></button>
+      <button class="esc-btn" role="radio" data-esc="dron"><span class="ic"><i class="fas fa-helicopter"></i></span><span><b>Dron de monitoreo</b><small>va al nido y regresa</small></span></button>
+    </div>
+
+    <div class="situacion">
+      <p id="escDesc"></p>
+      <div class="fx" id="escFx" title="Posición en función del tiempo"></div>
+      <p class="preg" id="escPreg"></p>
+    </div>
+
+    <div class="escena-grid">
+      <div class="escena-wrap"><canvas id="cvEscena" aria-label="Escena animada del movimiento"></canvas></div>
+      <aside class="tablero" aria-live="off">
+        <h3><span>Velocímetro</span><span id="rUnidad">m/s</span></h3>
+        <canvas id="cvGauge" aria-hidden="true"></canvas>
+        <div>
+          <div class="dig-main"><span id="rV">0,00</span> <small>m/s</small></div>
+          <div class="dig-sub"><span id="rKmh">0,0</span> km/h · <span class="dir" id="rDir">en reposo</span></div>
+        </div>
+        <div class="dig-grid">
+          <span>Tiempo t</span><b id="rT">0,00 s</b>
+          <span>Posición x</span><b id="rX">0,00 m</b>
+          <span class="vm" title="Desplazamiento total dividido entre el tiempo total desde la salida">v media desde la salida</span><b id="rVmed" style="color:#93c5fd">—</b>
+        </div>
+      </aside>
+    </div>
+
+    <div class="controles">
+      <button class="btn primary" id="btnPlay"><i class="fas fa-play"></i> Reproducir</button>
+      <button class="btn" id="btnReset" title="Volver a t = 0"><i class="fas fa-rotate-left"></i></button>
+      <button class="btn" id="btnMenos" title="Retroceder 0,1 s">−0,1 s</button>
+      <button class="btn" id="btnMas" title="Avanzar 0,1 s">+0,1 s</button>
+      <label class="tslider"><span>t</span><input type="range" id="tR" min="0" max="10" step="0.01" value="0" aria-label="Tiempo de la animación"></label>
+      <label>Ritmo <select id="selVel"><option value="0.25">×0,25</option><option value="0.5">×0,5</option><option value="1" selected>×1</option><option value="2">×2</option></select></label>
+    </div>
+    <div class="controles">
+      <div class="chips">
+        <label class="chip"><input type="checkbox" id="chkCinta" checked> Cinta registradora</label>
+        <label class="chip"><input type="checkbox" id="chkVector" checked> Vector velocidad</label>
+        <label class="chip"><input type="checkbox" id="chkPQ" checked> Puntos P y Q</label>
+      </div>
+      <button class="btn azul" id="btnUsarP"><i class="fas fa-location-crosshairs"></i> Usar este instante como P</button>
+    </div>
+
+    <div class="callout idea"><i class="fas fa-lightbulb"></i><div>
+      <p><b>Observa la cinta registradora:</b> marca un punto cada cierto tiempo. Donde los puntos se separan, el objeto va más rápido; donde se amontonan, va más lento.</p>
+      <p>Compara el <b style="color:var(--rojo)">velocímetro</b> con la <b style="color:var(--azul)">velocidad media desde la salida</b>: casi nunca coinciden. El velocímetro te dice qué pasa <b>en este instante</b>; la media resume todo el viaje.</p>
+    </div></div>
+  </section>
+
+  <!-- 2. SECANTE -->
+  <section class="card" id="s-secante">
+    <div class="sec-h"><span class="num">2</span><div><h2>De la velocidad media a la instantánea: encoge Δt</h2><p>Toma dos instantes, P (en t₀) y Q (en t₀ + Δt). La pendiente de la recta que los une es la velocidad media. ¿Qué pasa cuando Q se acerca a P?</p></div></div>
+
+    <div class="lab-grid">
+      <div>
+        <div class="gg-graph gg-big" id="ggXT"></div>
+        <p class="gg-note"><i class="fas fa-hand-pointer"></i> Arrastra los puntos <b style="color:var(--rojo)">P</b> y <b style="color:var(--azul)">Q</b> sobre la curva. Rueda o pellizco: zoom · arrastra un eje para reescalarlo.</p>
+      </div>
+      <div class="panel">
+        <div class="ctl">
+          <label for="t0R">Instante P: t₀ <b id="t0Val">4,00 s</b></label>
+          <input type="range" id="t0R" min="0" max="9.9" step="0.01" value="4">
+        </div>
+        <div class="ctl">
+          <label for="dtR">Intervalo Δt <b id="dtVal">3,000 s</b></label>
+          <input type="range" id="dtR" min="-3" max="0.8" step="0.001" value="0.47">
+          <div class="hint"><span>0,001 s</span><span>escala logarítmica</span><span id="dtMaxTxt">Δt máx.</span></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="btnLimite"><i class="fas fa-compress"></i> Hacer Δt → 0</button>
+          <button class="btn" id="btnFila"><i class="fas fa-table-list"></i> Anotar en la tabla</button>
+        </div>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" id="chkSec" checked> Secante</label>
+          <label class="chip"><input type="checkbox" id="chkTan"> Tangente</label>
+          <label class="chip"><input type="checkbox" id="chkTri" checked> Triángulo Δt, Δx</label>
+        </div>
+        <div class="lecturas">
+          <div class="lec dl"><small>Δt = t₀+Δt − t₀</small><b id="lDt">—</b></div>
+          <div class="lec dl"><small>Δx = x(Q) − x(P)</small><b id="lDx">—</b></div>
+          <div class="lec vm wide"><small>Velocidad media v̄ = Δx/Δt<br>(pendiente de la secante)</small><b id="lVm">—</b></div>
+          <div class="lec vi wide" id="lecVi"><small>Velocidad instantánea v(t₀)<br>(pendiente de la tangente)</small><span id="lVi"></span></div>
+          <div class="lec wide"><small>Diferencia v̄ − v(t₀)</small><span class="diff-chip r" id="lDiff">—</span></div>
+        </div>
+        <div class="f-live" id="fLive"></div>
+      </div>
+    </div>
+
+    <div class="tabla-h">
+      <h3><i class="fas fa-table" style="color:var(--verde)"></i> Tabla: velocidad media para intervalos cada vez más pequeños</h3>
+      <button class="btn" id="btnBorrar"><i class="fas fa-eraser"></i> Borrar tabla</button>
+    </div>
+    <div class="tabla-wrap">
+      <table class="datos">
+        <thead><tr><th>#</th><th>Δt (s)</th><th>x(t₀) (m)</th><th>x(t₀+Δt) (m)</th><th>Δx (m)</th><th>v̄ = Δx/Δt (m/s)</th><th>v̄ − v(t₀) (m/s)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot><tr><td colspan="7" id="tfoot">Pulsa <b>Hacer Δt → 0</b> para llenar la tabla automáticamente, o mueve Δt y pulsa <b>Anotar</b>.</td></tr></tfoot>
+      </table>
+    </div>
+
+    <div class="callout explora"><i class="fas fa-magnifying-glass"></i><div>
+      <p><b>Explora y responde en tu cuaderno:</b></p>
+      <ol>
+        <li>Con Δt = 2 s, ¿la recta secante se parece a la curva cerca de P?</li>
+        <li>Llena la tabla con Δt = 1; 0,1; 0,01 y 0,001 s. ¿Qué le pasa a Δx? ¿Y a Δx/Δt?</li>
+        <li>¿A qué número se acerca Δx/Δt? Activa la <b style="color:var(--rojo)">tangente</b>: ¿coincide su pendiente con ese número?</li>
+        <li>En el dron, pon t₀ = 10 s. ¿Qué valor tiene la velocidad instantánea? ¿Por qué la tangente queda horizontal?</li>
+      </ol>
+    </div></div>
+  </section>
+
+  <!-- 3. MICROSCOPIO -->
+  <section class="card" id="s-micro">
+    <div class="sec-h"><span class="num">3</span><div><h2>El microscopio: de cerca, la curva es una recta</h2><p>Haz zoom alrededor de P. Una curva suave, vista con suficiente aumento, se confunde con su recta tangente.</p></div></div>
+    <div class="lab-grid">
+      <div class="gg-graph" id="ggMic"></div>
+      <div class="panel">
+        <div class="ctl">
+          <label for="zR">Aumento del microscopio <b id="zVal">×1</b></label>
+          <input type="range" id="zR" min="0" max="3" step="0.01" value="0">
+          <div class="hint"><span>×1</span><span>×10</span><span>×100</span><span>×1000</span></div>
+        </div>
+        <div class="btn-row"><button class="btn primary" id="btnZoom"><i class="fas fa-microscope"></i> Acercar hasta ×1000</button></div>
+        <div class="lecturas">
+          <div class="lec"><small>Ancho de la ventana</small><b id="mAncho">—</b></div>
+          <div class="lec vi"><small>Pendiente de la tangente</small><b id="mPend">—</b></div>
+          <div class="lec wide"><small>Separación máxima entre la curva y la tangente<br>(en % del alto de la ventana)</small><b id="mSep">—</b></div>
+        </div>
+        <div class="callout clave" style="margin-top:0"><i class="fas fa-key"></i><div><p id="mMsg"></p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. GRÁFICA v–t -->
+  <section class="card" id="s-vt">
+    <div class="sec-h"><span class="num">4</span><div><h2>La misma idea en la gráfica velocidad–tiempo</h2><p>Cada punto de la curva v(t) es la lectura del velocímetro en ese instante.</p></div></div>
+    <div class="lab-grid">
+      <div class="gg-graph" id="ggVT"></div>
+      <div class="panel">
+        <div class="lecturas">
+          <div class="lec vi wide"><small>Altura del punto rojo<br>= v(t₀), lectura del velocímetro</small><b id="vVi">—</b></div>
+          <div class="lec dl wide"><small>Área sombreada entre t₀ y t₀+Δt<br>= desplazamiento Δx</small><b id="vArea">—</b></div>
+          <div class="lec vm wide"><small>Altura del rectángulo azul<br>= v̄ (misma área que la región sombreada)</small><b id="vVm">—</b></div>
+        </div>
+        <div class="callout idea" style="margin-top:0"><i class="fas fa-lightbulb"></i><div>
+          <p>La <b style="color:var(--azul)">velocidad media</b> es la altura «promedio» de la curva v(t) en el intervalo. Cuando Δt se encoge, el rectángulo azul se angosta y su altura se acerca a la del <b style="color:var(--rojo)">punto rojo</b>: v̄ → v(t₀).</p>
+          <p>Usa el control Δt de la sección 2 y observa este gráfico.</p>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. TEORÍA -->
+  <section class="card" id="s-teoria">
+    <div class="sec-h"><span class="num">5</span><div><h2>Lo que acabas de descubrir</h2><p>Los conceptos, paso a paso.</p></div></div>
+    <div class="teoria-grid">
+      <div class="t-card">
+        <h3><span class="n">1</span> Velocidad media: un promedio</h3>
+        <p>Compara dónde estaba el objeto al principio y al final de un intervalo:</p>
+        $$\bar v=\frac{\Delta x}{\Delta t}=\frac{x(t_2)-x(t_1)}{t_2-t_1}$$
+        <p>Es útil, pero <b>esconde lo que pasa en medio</b>: frenadas, aceleraciones, paradas.</p>
+      </div>
+      <div class="t-card">
+        <h3><span class="n">2</span> Encoger el intervalo</h3>
+        <p>Si tomamos intervalos cada vez más cortos alrededor de un instante $t$, el promedio describe cada vez mejor lo que pasa <b>en ese instante</b>:</p>
+        $$v(t)=\lim_{\Delta t\to 0}\frac{x(t+\Delta t)-x(t)}{\Delta t}=\frac{dx}{dt}$$
+        <p>Se lee: «la velocidad instantánea es el <b>límite</b> de la velocidad media cuando Δt tiende a cero».</p>
+      </div>
+      <div class="t-card">
+        <h3><span class="n">3</span> ¿No es dividir entre cero?</h3>
+        <p><b>No.</b> Δt nunca vale cero: se hace tan pequeño como queramos (0,1 s; 0,001 s; …). A la vez, Δx también se hace pequeño, y su cociente <b>se estabiliza</b> en un número. Ese número es $v(t)$. Lo viste en la tabla.</p>
+      </div>
+      <div class="t-card">
+        <h3><span class="n">4</span> En la gráfica x–t</h3>
+        <p>Pendiente de la <b style="color:var(--azul)">secante</b> PQ = velocidad media.<br>Pendiente de la <b style="color:var(--rojo)">tangente</b> en P = velocidad instantánea.</p>
+        <p>Pendiente positiva → avanza (+x). Negativa → regresa. <b>Cero</b> (tangente horizontal) → quieto en ese instante, como el dron sobre el nido.</p>
+      </div>
+      <div class="t-card">
+        <h3><span class="n">5</span> Velocidad y rapidez</h3>
+        <p>La velocidad instantánea tiene <b>signo</b> (sentido del movimiento). El velocímetro solo marca su tamaño: la <b>rapidez</b> instantánea $|v|$.</p>
+        $$1\ \tfrac{\text{m}}{\text{s}}=3{,}6\ \tfrac{\text{km}}{\text{h}}$$
+      </div>
+      <div class="t-card">
+        <h3><span class="n">6</span> ¿Y si v es constante?</h3>
+        <p>En el movimiento rectilíneo uniforme la gráfica x–t es una recta: secante y tangente coinciden y <b>v̄ = v</b> en todo instante. Solo cuando la velocidad cambia, media e instantánea son diferentes.</p>
+      </div>
+
+      <div class="t-card wide">
+        <h3><span class="n" style="background:var(--azul)"><i class="fas fa-pen"></i></span> Ejemplo resuelto: el bus eléctrico, $x(t)=0{,}6\,t^2$ (en metros)</h3>
+        <div class="pasos">
+          <div class="paso">Posición un poquito después:
+            $$x(t+\Delta t)=0{,}6\,t^2+1{,}2\,t\,\Delta t+0{,}6\,\Delta t^2$$</div>
+          <div class="paso">Desplazamiento:
+            $$\Delta x=1{,}2\,t\,\Delta t+0{,}6\,\Delta t^2$$</div>
+          <div class="paso">Velocidad media:
+            $$\bar v=\frac{\Delta x}{\Delta t}=1{,}2\,t+0{,}6\,\Delta t$$</div>
+          <div class="paso">Cuando Δt → 0 el término $0{,}6\,\Delta t$ desaparece:
+            $$v(t)=1{,}2\,t$$</div>
+        </div>
+        <p>En $t=4$ s: $v=1{,}2(4)=4{,}8$ m/s $\approx 17{,}3$ km/h. Comprueba con la simulación: con Δt = 1 s sale 5,4 m/s; con 0,1 s, 4,86; con 0,01 s, 4,806; con 0,001 s, 4,8006 m/s. ¡Se acerca a 4,8!</p>
+      </div>
+
+      <div class="t-card wide">
+        <h3><span class="n"><i class="fas fa-leaf"></i></span> ¿Dónde aparece en la gestión ambiental?</h3>
+        <div class="amb">
+          <div><i class="fas fa-wind"></i><b>Viento y calidad del aire</b><p>Las estaciones meteorológicas reportan el viento medio (promediado en unos 10 min) y las ráfagas (promedios de unos 3 s). Las ráfagas se acercan más a la velocidad instantánea y pesan en la dispersión de contaminantes y en los incendios forestales.</p></div>
+          <div><i class="fas fa-water"></i><b>Aforo de ríos</b><p>El método del flotador da la velocidad <b>media</b> en un tramo. Un correntómetro (molinete) mide la velocidad en un punto del cauce, casi instantánea. Tramos más cortos dan estimaciones más cercanas a la velocidad local.</p></div>
+          <div><i class="fas fa-paw"></i><b>Seguimiento de fauna</b><p>Los collares GPS registran posiciones cada cierto intervalo. Entre más corto el intervalo, mejor se estima la velocidad instantánea del animal (huidas, cacería, cruces de vías).</p></div>
+          <div><i class="fas fa-gas-pump"></i><b>Vehículos y emisiones</b><p>El consumo y las emisiones dependen de la velocidad instantánea (arranques y frenadas), no solo de la media. Por eso los ciclos de prueba de vehículos registran la velocidad segundo a segundo.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout clave"><i class="fas fa-key"></i><div>
+      <p><b>Idea clave:</b> la velocidad instantánea es la velocidad media en un intervalo de tiempo infinitamente pequeño. Geométricamente es la pendiente de la recta tangente a la gráfica x–t, y es lo que marca (en tamaño) el velocímetro.</p>
+    </div></div>
+  </section>
+
+  <!-- 6. RETO -->
+  <section class="card" id="s-reto">
+    <div class="sec-h"><span class="num">6</span><div><h2>Ponte a prueba</h2><p>Seis preguntas con retroalimentación inmediata.</p></div></div>
+    <div class="score"><span class="pill" id="qScore">0 / 6</span><div class="bar"><i id="qBar"></i></div><button class="btn" id="qReset"><i class="fas fa-rotate"></i> Reintentar</button></div>
+    <div id="quiz"></div>
+    <div class="final" id="qFinal"></div>
+  </section>
+</main>
+
+<footer>Física · Administración del Medio Ambiente · Universidad Tecnológica de Pereira · Simulación «Velocidad instantánea»</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ==========================================================================
+   SIMULACIÓN — Velocidad instantánea
+   Física · Administración del Medio Ambiente · UTP
+   Unidades SI (m, s, m/s). Todas las funciones x(t) y v(t) son exactas
+   (v es la derivada analítica de x), no hay integración numérica.
+   ========================================================================== */
+
+/* ---------------------------- utilidades ---------------------------------- */
+const $ = (s, r = document) => r.querySelector(s);
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
+const nf = (v, d = 2) => { const p = Math.pow(10, -d) / 2; return (Math.abs(v) < p ? 0 : v).toFixed(d).replace('.', ',').replace('-', '−'); };
+const PI = Math.PI;
+const C = { curva: '#059669', sec: '#2563eb', tan: '#dc2626', delta: '#ea580c', vel: '#7c3aed', ahora: '#475569' };
+
+function ggNice(span, px, minPx) {
+  const raw = Math.abs(span) * minPx / Math.max(px, 1);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+  const n = raw / mag;
+  const m = n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10;
+  return { step: m * mag, sub: m === 2 ? 4 : 5 };
+}
+function ggFmt(v, step) {
+  if (Math.abs(v) < step * 1e-6) return '0';
+  const d = Math.max(0, Math.ceil(-Math.log10(step) - 1e-9));
+  return v.toFixed(d).replace('.', ',').replace('-', '−');
+}
+const GG_SWATCHES = ['#1565c0', '#c62828', '#2e7d32', '#6a1b9a', '#ef6c00', '#00838f', '#37474f', '#ad1457', '#f9a825'];
+const GG_DASH = { solid: [], dash: [8, 5], dot: [2, 4], dashdot: [9, 4, 2, 4] };
+const GG_COL = { bg: '#ffffff', minor: '#eef1f5', major: '#d3d9e1', axis: '#2b2f36', num: '#2b2f36' };
+const ggEsc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ==========================================================================
+   GGGraph — plano cartesiano estilo GeoGebra (cuadrícula mayor y milimetrada,
+   ejes con flechas, escala 1-2-5, barra de herramientas, paleta de estilo,
+   zoom con rueda o pellizco, reescalado de ejes arrastrándolos).
+   def = { title, xLabel, yLabel, xVar, yVar, scene: (g) => ({ view, items }) }
+   items: { id, name, type: 'fn'|'poly'|'area'|'points'|'text', ... }
+   ========================================================================== */
+class GGGraph {
+  constructor(host, def) {
+    this.host = host; this.def = def;
+    this.mode = 'select'; this.view = null; this.auto = true;
+    this.styles = {}; this.opt = { major: true, minor: true, axes: true, nums: true, labels: true };
+    this.ptrs = new Map(); this.drag = null; this.sel = null; this._raf = 0;
+    this.W = 0; this.H = 0; this.dpr = 1; this.palItem = null; this.sc = null;
+    host.innerHTML = `
+      <div class="gg-bar" role="toolbar" aria-label="Herramientas: ${ggEsc(def.title)}">
+        <span class="gg-title">${ggEsc(def.title)}</span>
+        <span class="gg-tools">
+          <button type="button" data-a="select" aria-pressed="true" title="Mover y seleccionar objetos (arrastra el fondo para desplazar)" aria-label="Mover y seleccionar"><i class="fas fa-arrow-pointer"></i></button>
+          <button type="button" data-a="pan" aria-pressed="false" title="Desplazar la vista gráfica" aria-label="Desplazar la vista"><i class="fas fa-hand"></i></button>
+          <button type="button" data-a="in" title="Acercar (+)" aria-label="Acercar"><i class="fas fa-magnifying-glass-plus"></i></button>
+          <button type="button" data-a="out" title="Alejar (−)" aria-label="Alejar"><i class="fas fa-magnifying-glass-minus"></i></button>
+          <button type="button" data-a="home" title="Vista estándar (Inicio)" aria-label="Vista estándar"><i class="fas fa-house"></i></button>
+          <button type="button" data-a="pal" aria-pressed="false" title="Estilo gráfico: color, grosor, tipo de línea, puntos y cuadrícula" aria-label="Estilo gráfico"><i class="fas fa-palette"></i></button>
+          <button type="button" data-a="png" title="Descargar la gráfica como imagen PNG" aria-label="Descargar PNG"><i class="fas fa-download"></i></button>
+        </span>
+      </div>
+      <div class="gg-box">
+        <canvas tabindex="0" aria-label="Plano cartesiano ${ggEsc(def.title)}. Rueda o pellizco: zoom; arrastra un eje para reescalarlo; flechas: desplazar; Inicio: vista estándar."></canvas>
+        <div class="gg-coord" hidden></div><div class="gg-tip" hidden></div><div class="gg-pal" hidden></div>
+      </div>
+      <div class="gg-legend"></div>`;
+    this.box = host.querySelector('.gg-box');
+    this.cv = this.box.querySelector('canvas'); this.ctx = this.cv.getContext('2d');
+    this.coord = host.querySelector('.gg-coord'); this.tip = host.querySelector('.gg-tip');
+    this.pal = host.querySelector('.gg-pal'); this.leg = host.querySelector('.gg-legend');
+    host.querySelectorAll('[data-a]').forEach((b) => b.addEventListener('click', () => this.action(b.dataset.a, b)));
+    if ('ResizeObserver' in window) new ResizeObserver(() => this.resize()).observe(this.box);
+    else window.addEventListener('resize', () => this.resize());
+    this.bind();
+    this.resize();
+  }
+  resize() {
+    const r = this.box.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10) return;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    this.W = r.width; this.H = r.height;
+    this.cv.width = Math.round(this.W * this.dpr); this.cv.height = Math.round(this.H * this.dpr);
+    this.draw();
+  }
+  invalidate() { if (!this._raf) this._raf = requestAnimationFrame(() => this.draw()); }
+  X(x) { const v = this.view; return ((x - v.xmin) / (v.xmax - v.xmin)) * this.W; }
+  Y(y) { const v = this.view; return this.H - ((y - v.ymin) / (v.ymax - v.ymin)) * this.H; }
+  ix(px) { const v = this.view; return v.xmin + (px / this.W) * (v.xmax - v.xmin); }
+  iy(py) { const v = this.view; return v.ymin + ((this.H - py) / this.H) * (v.ymax - v.ymin); }
+  gx() { return ggNice(this.view.xmax - this.view.xmin, this.W, 58); }
+  gy() { return ggNice(this.view.ymax - this.view.ymin, this.H, 32); }
+  fx(x) { return ggFmt(x, this.gx().step / 100); }
+  fy(y) { return ggFmt(y, this.gy().step / 100); }
+  st(it) {
+    const o = this.styles[it.id] || {};
+    return {
+      color: o.color || it.color || '#1565c0', width: o.width ?? it.width ?? 2.5,
+      dash: o.dash ?? it.dash ?? 'solid', size: o.size ?? it.size ?? 4.5,
+      shape: o.shape ?? it.shape ?? 'circle', hidden: o.hidden ?? it.hidden ?? false,
+      alpha: it.alpha ?? 0.22
+    };
+  }
+  setSt(id, patch) { this.styles[id] = Object.assign(this.styles[id] || {}, patch); this.draw(); }
+
+  draw() {
+    this._raf = 0;
+    if (this.W < 10) return;
+    let sc = null;
+    try { sc = this.def.scene(this); } catch (err) { console.error('[GGGraph] scene:', err); return; }
+    if (!sc) return;
+    sc.items = sc.items.filter(Boolean);
+    this.sc = sc;
+    if (!this.view || (this.auto && !this.drag)) this.view = Object.assign({}, sc.view);
+    const c = this.ctx, W = this.W, H = this.H, v = this.view, o = this.opt;
+    c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    c.fillStyle = GG_COL.bg; c.fillRect(0, 0, W, H);
+    const gx = this.gx(), gy = this.gy();
+    const vlines = (step, color) => {
+      c.strokeStyle = color; c.lineWidth = 1; c.beginPath();
+      for (let k = Math.ceil(v.xmin / step); k * step <= v.xmax; k++) { const p = Math.round(this.X(k * step)) + 0.5; c.moveTo(p, 0); c.lineTo(p, H); }
+      c.stroke();
+    };
+    const hlines = (step, color) => {
+      c.strokeStyle = color; c.lineWidth = 1; c.beginPath();
+      for (let k = Math.ceil(v.ymin / step); k * step <= v.ymax; k++) { const p = Math.round(this.Y(k * step)) + 0.5; c.moveTo(0, p); c.lineTo(W, p); }
+      c.stroke();
+    };
+    if (o.minor) { vlines(gx.step / gx.sub, GG_COL.minor); hlines(gy.step / gy.sub, GG_COL.minor); }
+    if (o.major) { vlines(gx.step, GG_COL.major); hlines(gy.step, GG_COL.major); }
+    const x0 = this.X(0), y0 = this.Y(0);
+    const xIn = x0 >= 0 && x0 <= W, yIn = y0 >= 0 && y0 <= H;
+    const halo = (t, x, y) => { c.lineWidth = 3.5; c.strokeStyle = GG_COL.bg; c.lineJoin = 'round'; c.strokeText(t, x, y); c.fillText(t, x, y); };
+
+    c.save(); c.beginPath(); c.rect(0, 0, W, H); c.clip();
+    const items = sc.items.filter((it) => !this.st(it).hidden);
+    items.filter((it) => it.type === 'area').forEach((it) => this.drawArea(c, it, this.st(it)));
+    items.filter((it) => it.type === 'fn' || it.type === 'poly').forEach((it) => {
+      const s = this.st(it);
+      if (it.type === 'fn') this.drawFn(c, it, s); else this.drawPoly(c, it.data, s);
+    });
+    c.restore();
+
+    if (o.axes) {
+      c.strokeStyle = GG_COL.axis; c.fillStyle = GG_COL.axis; c.lineWidth = 1.4;
+      if (yIn) {
+        c.beginPath(); c.moveTo(0, y0); c.lineTo(W - 2, y0); c.stroke();
+        c.beginPath(); c.moveTo(W - 1, y0); c.lineTo(W - 10, y0 - 4); c.lineTo(W - 10, y0 + 4); c.closePath(); c.fill();
+      }
+      if (xIn) {
+        c.beginPath(); c.moveTo(x0, H); c.lineTo(x0, 2); c.stroke();
+        c.beginPath(); c.moveTo(x0, 1); c.lineTo(x0 - 4, 10); c.lineTo(x0 + 4, 10); c.closePath(); c.fill();
+      }
+      c.lineWidth = 1; c.beginPath();
+      const msx = gx.step / gx.sub, msy = gy.step / gy.sub;
+      if (yIn) for (let k = Math.ceil(v.xmin / msx); k * msx <= v.xmax; k++) { const p = Math.round(this.X(k * msx)) + 0.5, L = k % gx.sub === 0 ? 4 : 2; c.moveTo(p, y0 - L); c.lineTo(p, y0 + L); }
+      if (xIn) for (let k = Math.ceil(v.ymin / msy); k * msy <= v.ymax; k++) { const p = Math.round(this.Y(k * msy)) + 0.5, L = k % gy.sub === 0 ? 4 : 2; c.moveTo(x0 - L, p); c.lineTo(x0 + L, p); }
+      c.stroke();
+    }
+    if (o.nums) {
+      c.font = '500 11px "Fira Code", monospace'; c.fillStyle = GG_COL.num;
+      c.textAlign = 'center'; c.textBaseline = 'top';
+      const ty = yIn ? Math.min(y0 + 6, H - 15) : (y0 < 0 ? 4 : H - 15);
+      for (let k = Math.ceil(v.xmin / gx.step); k * gx.step <= v.xmax; k++) {
+        if (k === 0 && xIn) continue;
+        const p = this.X(k * gx.step); if (p < 12 || p > W - 16) continue;
+        halo(ggFmt(k * gx.step, gx.step), p, ty);
+      }
+      c.textBaseline = 'middle';
+      let tx, al;
+      if (xIn) { tx = x0 - 6; al = 'right'; if (tx < 34) { tx = x0 + 6; al = 'left'; } } else if (x0 < 0) { tx = 4; al = 'left'; } else { tx = W - 4; al = 'right'; }
+      c.textAlign = al;
+      for (let k = Math.ceil(v.ymin / gy.step); k * gy.step <= v.ymax; k++) {
+        if (k === 0 && yIn) continue;
+        const p = this.Y(k * gy.step); if (p < 18 || p > H - 8) continue;
+        halo(ggFmt(k * gy.step, gy.step), tx, p);
+      }
+      if (xIn && yIn) { c.textAlign = 'right'; c.textBaseline = 'top'; halo('0', x0 - 4, y0 + 4); }
+    }
+    if (o.axes) {
+      c.font = 'italic 600 13px Inter, sans-serif'; c.fillStyle = GG_COL.axis;
+      const yx = clampN(y0, 0, H);
+      c.textAlign = 'right'; c.textBaseline = 'bottom'; halo(this.def.xLabel, W - 12, clampN(yx - 6, 18, H - 18));
+      const xy = clampN(x0, 0, W);
+      c.textAlign = xy > W - 90 ? 'right' : 'left'; c.textBaseline = 'top'; halo(this.def.yLabel, xy > W - 90 ? xy - 10 : xy + 10, 4);
+    }
+
+    c.save(); c.beginPath(); c.rect(0, 0, W, H); c.clip();
+    items.filter((it) => it.type === 'text').forEach((it) => {
+      if (!Number.isFinite(it.x) || !Number.isFinite(it.y)) return;
+      const s = this.st(it);
+      c.font = it.font || '700 13px Inter, sans-serif'; c.fillStyle = s.color;
+      c.textAlign = it.align || 'center'; c.textBaseline = it.base || 'middle';
+      halo(it.text, this.X(it.x) + (it.dx || 0), this.Y(it.y) + (it.dy || 0));
+    });
+    items.filter((it) => it.type === 'points').forEach((it) => {
+      const s = this.st(it);
+      it.data.forEach((p) => {
+        if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
+        const px = this.X(p.x), py = this.Y(p.y);
+        this.drawPt(c, px, py, s);
+        if (o.labels && p.label) { c.font = '800 13px Inter, sans-serif'; c.fillStyle = s.color; c.textAlign = 'left'; c.textBaseline = 'bottom'; halo(p.label, px + s.size + 3, py - s.size); }
+      });
+    });
+    if (this.sel) {
+      const it = sc.items.find((i) => i.id === this.sel.item);
+      if (it && this.sel.kind === 'pt' && it.data[this.sel.j]) {
+        const p = it.data[this.sel.j], s = this.st(it), px = this.X(p.x), py = this.Y(p.y);
+        c.strokeStyle = s.color; c.lineWidth = 1.5; c.setLineDash([3, 3]);
+        c.beginPath(); c.arc(px, py, s.size + 5, 0, Math.PI * 2); c.stroke();
+        c.globalAlpha = 0.55; c.setLineDash([4, 4]); c.lineWidth = 1; c.beginPath();
+        c.moveTo(px, py); c.lineTo(px, clampN(y0, 0, H)); c.moveTo(px, py); c.lineTo(clampN(x0, 0, W), py); c.stroke();
+        c.setLineDash([]); c.globalAlpha = 1;
+      }
+    }
+    c.restore();
+    this.renderLegend();
+  }
+  drawFn(c, it, s) {
+    const v = this.view;
+    let a = v.xmin, b = v.xmax;
+    if (it.domain) { a = Math.max(a, it.domain[0]); b = Math.min(b, it.domain[1]); }
+    if (!(b > a)) return;
+    c.strokeStyle = s.color; c.lineWidth = s.width; c.setLineDash(GG_DASH[s.dash] || []);
+    c.lineJoin = 'round'; c.lineCap = 'round'; c.beginPath();
+    const n = Math.max(2, Math.ceil((this.X(b) - this.X(a)) / 1.5));
+    let pen = false;
+    for (let k = 0; k <= n; k++) {
+      const x = a + ((b - a) * k) / n, y = it.f(x);
+      if (!Number.isFinite(y)) { pen = false; continue; }
+      const px = this.X(x), py = clampN(this.Y(y), -5 * this.H, 6 * this.H);
+      if (!pen) { c.moveTo(px, py); pen = true; } else c.lineTo(px, py);
+    }
+    c.stroke(); c.setLineDash([]);
+  }
+  drawPoly(c, data, s) {
+    c.strokeStyle = s.color; c.lineWidth = s.width; c.setLineDash(GG_DASH[s.dash] || []);
+    c.lineJoin = 'round'; c.lineCap = 'round'; c.beginPath();
+    let pen = false;
+    data.forEach((p) => {
+      if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) { pen = false; return; }
+      const px = this.X(p.x), py = this.Y(p.y);
+      if (!pen) { c.moveTo(px, py); pen = true; } else c.lineTo(px, py);
+    });
+    c.stroke(); c.setLineDash([]);
+  }
+  drawArea(c, it, s) {
+    let pts = [];
+    if (it.f) {
+      let [a, b] = it.domain; a = Math.max(a, this.view.xmin); b = Math.min(b, this.view.xmax);
+      if (!(b > a)) return;
+      const n = Math.max(2, Math.ceil((this.X(b) - this.X(a)) / 2));
+      for (let k = 0; k <= n; k++) { const x = a + ((b - a) * k) / n; pts.push({ x, y: it.f(x) }); }
+    } else pts = it.data;
+    if (!pts || pts.length < 2) return;
+    c.save(); c.globalAlpha = s.alpha; c.fillStyle = s.color; c.beginPath();
+    c.moveTo(this.X(pts[0].x), this.Y(0));
+    pts.forEach((p) => c.lineTo(this.X(p.x), this.Y(p.y)));
+    c.lineTo(this.X(pts[pts.length - 1].x), this.Y(0)); c.closePath(); c.fill();
+    c.restore();
+  }
+  drawPt(c, x, y, s) {
+    const r = s.size;
+    c.fillStyle = s.color; c.strokeStyle = GG_COL.bg; c.lineWidth = 1.5; c.beginPath();
+    if (s.shape === 'square') c.rect(x - r * 0.85, y - r * 0.85, r * 1.7, r * 1.7);
+    else if (s.shape === 'diamond') { c.moveTo(x, y - r * 1.25); c.lineTo(x + r * 1.25, y); c.lineTo(x, y + r * 1.25); c.lineTo(x - r * 1.25, y); c.closePath(); }
+    else if (s.shape === 'cross') {
+      c.strokeStyle = s.color; c.lineWidth = Math.max(1.6, r / 2.4);
+      c.moveTo(x - r, y - r); c.lineTo(x + r, y + r); c.moveTo(x + r, y - r); c.lineTo(x - r, y + r); c.stroke(); return;
+    } else c.arc(x, y, r, 0, Math.PI * 2);
+    c.fill(); c.stroke();
+  }
+  renderLegend() {
+    const its = this.sc.items.filter((i) => i.name && i.legend !== false);
+    const key = its.map((i) => i.id + this.st(i).color + this.st(i).hidden + this.st(i).dash + i.name).join('|');
+    if (key === this._legKey) return;
+    this._legKey = key;
+    this.leg.innerHTML = its.map((it) => {
+      const s = this.st(it);
+      const mark = it.type === 'points'
+        ? `<span class="lg-pt" style="background:${s.color}"></span>`
+        : it.type === 'area'
+          ? `<span class="lg-area" style="background:${s.color}"></span>`
+          : `<span class="lg-ln" style="border-top:3px ${s.dash === 'solid' ? 'solid' : s.dash === 'dot' ? 'dotted' : 'dashed'} ${s.color}"></span>`;
+      return `<button type="button" class="lg-it${s.hidden ? ' off' : ''}" data-id="${it.id}" title="Clic: mostrar u ocultar">${mark}${ggEsc(it.name)}</button>`;
+    }).join('');
+    this.leg.querySelectorAll('[data-id]').forEach((b) => b.addEventListener('click', () => {
+      const it = this.sc.items.find((i) => i.id === b.dataset.id);
+      if (it) { this.setSt(it.id, { hidden: !this.st(it).hidden }); if (!this.pal.hidden) this.buildPal(it.id); }
+    }));
+  }
+  hit(px, py) {
+    let best = null, bd = 14;
+    this.sc.items.forEach((it) => {
+      if (it.type !== 'points' || this.st(it).hidden) return;
+      it.data.forEach((p, j) => { const d = Math.hypot(this.X(p.x) - px, this.Y(p.y) - py); if (d < bd) { bd = d; best = { item: it.id, j, kind: 'pt' }; } });
+    });
+    if (best) return best;
+    bd = 7;
+    this.sc.items.forEach((it) => {
+      if (it.type !== 'fn' || this.st(it).hidden) return;
+      const x = this.ix(px);
+      if (it.domain && (x < it.domain[0] || x > it.domain[1])) return;
+      const y = it.f(x); if (!Number.isFinite(y)) return;
+      const d = Math.abs(this.Y(y) - py); if (d < bd) { bd = d; best = { item: it.id, x, y, kind: 'fn' }; }
+    });
+    return best;
+  }
+  showTip(h, px, py, pinned) {
+    const it = this.sc.items.find((i) => i.id === h.item); if (!it) return;
+    const s = this.st(it), xv = this.def.xVar || 'x', yv = this.def.yVar || 'y';
+    let body;
+    if (h.kind === 'pt') { const p = it.data[h.j]; if (!p) return; body = `(${xv}; ${yv}) = (${this.fx(p.x)}; ${this.fy(p.y)})${p.info ? '<br>' + p.info : ''}`; }
+    else body = `${xv} = ${this.fx(h.x)} → ${yv} = ${this.fy(h.y)}`;
+    this.tip.innerHTML = `<span class="sw" style="background:${s.color}"></span><b>${ggEsc(it.name || it.id)}</b><div>${body}</div>${it.drag ? '<div class="tip-pin">Arrastra el punto para moverlo</div>' : ''}${pinned ? '<div class="tip-pin">Clic en el fondo para soltar</div>' : ''}`;
+    this.tip.hidden = false;
+    const tw = this.tip.offsetWidth, th = this.tip.offsetHeight;
+    this.tip.style.left = clampN(px + 12, 2, this.W - tw - 2) + 'px';
+    this.tip.style.top = clampN(py - th - 10, 2, this.H - th - 2) + 'px';
+  }
+  axisAt(px, py) {
+    const x0 = this.X(0), y0 = this.Y(0), W = this.W, H = this.H;
+    const yIn = y0 >= 0 && y0 <= H, xIn = x0 >= 0 && x0 <= W;
+    const nearX = yIn ? (py > y0 - 7 && py < y0 + 18) : (y0 < 0 ? py < 18 : py > H - 18);
+    const nearY = xIn ? (px > x0 - 34 && px < x0 + 7) : (x0 < 0 ? px < 34 : px > W - 34);
+    if (nearX && nearY) return Math.abs(py - y0) < Math.abs(px - x0) ? 'ax' : 'ay';
+    return nearX ? 'ax' : nearY ? 'ay' : null;
+  }
+  cur(cs) { this.cv.style.cursor = cs; }
+  bind() {
+    const cv = this.cv;
+    cv.style.touchAction = 'none';
+    const pos = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    cv.addEventListener('wheel', (e) => {
+      if (!this.sc) return; e.preventDefault();
+      const [px, py] = pos(e); const dd = e.deltaY || e.deltaX;
+      const f = Math.exp(Math.sign(dd) * Math.min(Math.abs(dd), 120) * 0.0018);
+      this.zoomAt(this.ix(px), this.iy(py), e.altKey ? 1 : f, e.shiftKey ? 1 : f);
+    }, { passive: false });
+    cv.addEventListener('pointerdown', (e) => {
+      if (!this.sc) return;
+      try { cv.focus({ preventScroll: true }); } catch (_) { /* */ }
+      const [px, py] = pos(e); this.ptrs.set(e.pointerId, [px, py]);
+      try { cv.setPointerCapture(e.pointerId); } catch (_) { /* */ }
+      const v0 = Object.assign({}, this.view);
+      if (this.ptrs.size === 2) {
+        const [a, b] = [...this.ptrs.values()];
+        this.drag = { type: 'pinch', d0: Math.max(20, Math.hypot(a[0] - b[0], a[1] - b[1])), c0: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], v0 };
+        return;
+      }
+      if (this.mode === 'select') {
+        const h = this.hit(px, py);
+        if (h) {
+          this.sel = h; this.showTip(h, px, py, true);
+          const it = this.sc.items.find((i) => i.id === h.item);
+          if (h.kind === 'pt' && it && it.drag) { this.drag = { type: 'pt', id: it.id, j: h.j }; this.cur('grabbing'); }
+          if (!this.pal.hidden) this.buildPal(h.item);
+          this.draw(); return;
+        }
+        if (this.sel) { this.sel = null; this.tip.hidden = true; }
+      }
+      const ax = this.axisAt(px, py);
+      if (ax) { this.drag = { type: ax, x0: px, y0: py, v0 }; this.cur(ax === 'ax' ? 'ew-resize' : 'ns-resize'); return; }
+      this.drag = { type: 'pan', x0: px, y0: py, v0 }; this.cur('grabbing');
+    });
+    cv.addEventListener('pointermove', (e) => {
+      if (!this.sc) return;
+      const [px, py] = pos(e);
+      if (this.ptrs.has(e.pointerId)) this.ptrs.set(e.pointerId, [px, py]);
+      this.coord.hidden = false;
+      this.coord.textContent = `(${this.fx(this.ix(px))}; ${this.fy(this.iy(py))})`;
+      const d = this.drag;
+      if (!d) {
+        const h = this.mode === 'select' ? this.hit(px, py) : null;
+        if (h) {
+          if (!this.sel) this.showTip(h, px, py, false);
+          const it = this.sc.items.find((i) => i.id === h.item);
+          this.cur(it && it.drag && h.kind === 'pt' ? 'grab' : 'pointer');
+        } else {
+          if (!this.sel) this.tip.hidden = true;
+          const ax = this.axisAt(px, py);
+          this.cur(ax === 'ax' ? 'ew-resize' : ax === 'ay' ? 'ns-resize' : (this.mode === 'pan' ? 'grab' : 'default'));
+        }
+        return;
+      }
+      const v0 = d.v0, W = this.W, H = this.H;
+      if (d.type === 'pt') {
+        const it = this.sc.items.find((i) => i.id === d.id);
+        if (it && it.drag) it.drag(d.j, this.ix(px), this.iy(py));
+        this.draw();
+        const it2 = this.sc.items.find((i) => i.id === d.id);
+        if (it2) { const p = it2.data[d.j]; this.showTip({ item: it2.id, j: d.j, kind: 'pt' }, this.X(p.x), this.Y(p.y), false); }
+        return;
+      }
+      if (d.type === 'pan') {
+        const dx = ((px - d.x0) / W) * (v0.xmax - v0.xmin), dy = ((py - d.y0) / H) * (v0.ymax - v0.ymin);
+        this.setView({ xmin: v0.xmin - dx, xmax: v0.xmax - dx, ymin: v0.ymin + dy, ymax: v0.ymax + dy });
+      } else if (d.type === 'ax') {
+        const an = v0.xmin < 0 && v0.xmax > 0 ? 0 : (v0.xmin + v0.xmax) / 2;
+        const aP = ((an - v0.xmin) / (v0.xmax - v0.xmin)) * W;
+        let k;
+        if (Math.abs(d.x0 - aP) > 14 && (px - aP) * (d.x0 - aP) > 0 && Math.abs(px - aP) > 4) k = (d.x0 - aP) / (px - aP);
+        else k = Math.exp(-(px - d.x0) / 160);
+        k = clampN(k, 0.02, 50);
+        this.setView(Object.assign({}, v0, { xmin: an + (v0.xmin - an) * k, xmax: an + (v0.xmax - an) * k }));
+      } else if (d.type === 'ay') {
+        const an = v0.ymin < 0 && v0.ymax > 0 ? 0 : (v0.ymin + v0.ymax) / 2;
+        const aP = H - ((an - v0.ymin) / (v0.ymax - v0.ymin)) * H;
+        let k;
+        if (Math.abs(d.y0 - aP) > 14 && (py - aP) * (d.y0 - aP) > 0 && Math.abs(py - aP) > 4) k = (d.y0 - aP) / (py - aP);
+        else k = Math.exp((py - d.y0) / 160);
+        k = clampN(k, 0.02, 50);
+        this.setView(Object.assign({}, v0, { ymin: an + (v0.ymin - an) * k, ymax: an + (v0.ymax - an) * k }));
+      } else if (d.type === 'pinch' && this.ptrs.size >= 2) {
+        const [a, b] = [...this.ptrs.values()];
+        const f = d.d0 / Math.max(10, Math.hypot(a[0] - b[0], a[1] - b[1]));
+        const cc = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+        const cx = v0.xmin + (d.c0[0] / W) * (v0.xmax - v0.xmin), cy = v0.ymin + ((H - d.c0[1]) / H) * (v0.ymax - v0.ymin);
+        const w = (v0.xmax - v0.xmin) * f, hh = (v0.ymax - v0.ymin) * f;
+        const xmin = cx - (cc[0] / W) * w, ymin = cy - ((H - cc[1]) / H) * hh;
+        this.setView({ xmin, xmax: xmin + w, ymin, ymax: ymin + hh });
+      }
+    });
+    const up = (e) => {
+      this.ptrs.delete(e.pointerId);
+      if (this.ptrs.size === 0) {
+        const wasPt = this.drag && this.drag.type === 'pt';
+        this.drag = null; this.cur(this.mode === 'pan' ? 'grab' : 'default');
+        if (wasPt) this.draw();
+      } else if (this.drag && this.drag.type === 'pinch') {
+        const [p] = [...this.ptrs.values()];
+        this.drag = { type: 'pan', x0: p[0], y0: p[1], v0: Object.assign({}, this.view) };
+      }
+    };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+    cv.addEventListener('pointerleave', () => { this.coord.hidden = true; if (!this.sel) this.tip.hidden = true; });
+    cv.addEventListener('keydown', (e) => {
+      if (!this.sc) return;
+      const v = this.view, dx = (v.xmax - v.xmin) * 0.08, dy = (v.ymax - v.ymin) * 0.08;
+      let handled = true;
+      if (e.key === '+' || e.key === '=') this.zoomC(0.8);
+      else if (e.key === '-') this.zoomC(1.25);
+      else if (e.key === 'ArrowLeft') this.setView(Object.assign({}, v, { xmin: v.xmin - dx, xmax: v.xmax - dx }));
+      else if (e.key === 'ArrowRight') this.setView(Object.assign({}, v, { xmin: v.xmin + dx, xmax: v.xmax + dx }));
+      else if (e.key === 'ArrowUp') this.setView(Object.assign({}, v, { ymin: v.ymin + dy, ymax: v.ymax + dy }));
+      else if (e.key === 'ArrowDown') this.setView(Object.assign({}, v, { ymin: v.ymin - dy, ymax: v.ymax - dy }));
+      else if (e.key === 'Home') this.home();
+      else if (e.key === 'Escape') { this.sel = null; this.tip.hidden = true; this.draw(); }
+      else handled = false;
+      if (handled) e.preventDefault();
+    });
+  }
+  setView(v) { this.view = { xmin: v.xmin, xmax: v.xmax, ymin: v.ymin, ymax: v.ymax }; this.auto = false; this.draw(); }
+  zoomAt(x, y, fx, fy) { const v = this.view; this.setView({ xmin: x + (v.xmin - x) * fx, xmax: x + (v.xmax - x) * fx, ymin: y + (v.ymin - y) * fy, ymax: y + (v.ymax - y) * fy }); }
+  zoomC(f) { const v = this.view; this.zoomAt((v.xmin + v.xmax) / 2, (v.ymin + v.ymax) / 2, f, f); }
+  home() { this.auto = true; this.view = null; this.sel = null; this.tip.hidden = true; this.draw(); }
+  action(a, b) {
+    if (!this.sc) return;
+    if (a === 'select' || a === 'pan') {
+      this.mode = a;
+      this.host.querySelectorAll('[data-a=select],[data-a=pan]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.a === a ? 'true' : 'false'));
+      this.cur(a === 'pan' ? 'grab' : 'default');
+      if (a === 'pan') { this.sel = null; this.tip.hidden = true; this.draw(); }
+    } else if (a === 'in') this.zoomC(0.75);
+    else if (a === 'out') this.zoomC(1.33);
+    else if (a === 'home') this.home();
+    else if (a === 'pal') {
+      this.pal.hidden = !this.pal.hidden; b.setAttribute('aria-pressed', this.pal.hidden ? 'false' : 'true');
+      if (!this.pal.hidden) this.buildPal(this.sel && this.sel.item);
+    } else if (a === 'png') this.png();
+  }
+  png() {
+    try {
+      const k = 2, W = this.W, H = this.H, oc = document.createElement('canvas');
+      oc.width = W * k; oc.height = (H + 26) * k;
+      const c = oc.getContext('2d'); c.scale(k, k);
+      c.fillStyle = '#fff'; c.fillRect(0, 0, W, H + 26);
+      c.drawImage(this.cv, 0, 0, W, H);
+      c.font = '700 12px Inter, sans-serif'; c.fillStyle = '#1f2937'; c.textBaseline = 'middle';
+      c.fillText(this.def.title, 8, H + 13);
+      const a = document.createElement('a');
+      a.href = oc.toDataURL('image/png');
+      a.download = `grafica_${(this.def.title || 'plano').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/gi, '_')}.png`;
+      document.body.appendChild(a); a.click(); setTimeout(() => a.remove(), 300);
+    } catch (err) { console.error('[GGGraph] png', err); }
+  }
+  buildPal(focusId) {
+    const items = this.sc.items.filter((i) => i.name);
+    if (focusId) this.palItem = focusId;
+    const it = items.find((i) => i.id === this.palItem) || items.find((i) => i.legend !== false) || items[0];
+    if (!it) { this.pal.innerHTML = '<p>No hay objetos en esta gráfica.</p>'; return; }
+    this.palItem = it.id;
+    const s = this.st(it), o = this.opt;
+    const seg = (p, opts, cur) => `<div class="gg-seg" data-p="${p}">${opts.map(([k, l, t]) => `<button type="button" data-v="${k}" aria-pressed="${cur === k}" title="${t}">${l}</button>`).join('')}</div>`;
+    const lineCtl = it.type === 'points'
+      ? `<label>Tamaño del punto: <b data-w>${s.size}</b> px<input type="range" data-p="size" min="2" max="10" step="0.5" value="${s.size}"></label>
+         <div class="gg-lbl">Forma del punto</div>${seg('shape', [['circle', '●', 'Círculo'], ['square', '■', 'Cuadrado'], ['diamond', '◆', 'Rombo'], ['cross', '✕', 'Cruz']], s.shape)}`
+      : it.type === 'area' ? ''
+        : `<label>Grosor: <b data-w>${s.width}</b> px<input type="range" data-p="width" min="0.5" max="7" step="0.5" value="${s.width}"></label>
+         <div class="gg-lbl">Tipo de línea</div>${seg('dash', [['solid', '━━', 'Continua'], ['dash', '╺╸╺╸', 'Discontinua'], ['dot', '┈┈', 'Punteada'], ['dashdot', '━·━', 'Raya y punto']], s.dash)}`;
+    this.pal.innerHTML = `
+      <div class="gg-pal-h"><b><i class="fas fa-palette"></i> Estilo gráfico</b><button type="button" data-x aria-label="Cerrar paleta">✕</button></div>
+      <label>Objeto<select data-p="obj">${items.map((i) => `<option value="${i.id}" ${i.id === it.id ? 'selected' : ''}>${ggEsc(i.name)}</option>`).join('')}</select></label>
+      <div class="gg-lbl">Color</div>
+      <div class="gg-sw">${GG_SWATCHES.map((cl) => `<button type="button" data-c="${cl}" style="background:${cl}" aria-label="Color ${cl}" aria-pressed="${s.color.toLowerCase() === cl}"></button>`).join('')}<input type="color" data-p="color" value="${/^#[0-9a-f]{6}$/i.test(s.color) ? s.color : '#1565c0'}" aria-label="Otro color"></div>
+      ${lineCtl}
+      <label class="gg-chk"><input type="checkbox" data-p="hidden" ${s.hidden ? 'checked' : ''}> Ocultar este objeto</label>
+      <div class="gg-lbl">Vista gráfica</div>
+      ${[['major', 'Cuadrícula mayor'], ['minor', 'Cuadrícula menor (milimetrada)'], ['axes', 'Ejes, flechas y rótulos'], ['nums', 'Números sobre los ejes'], ['labels', 'Rótulos de los puntos']].map(([k, l]) => `<label class="gg-chk"><input type="checkbox" data-o="${k}" ${o[k] ? 'checked' : ''}> ${l}</label>`).join('')}
+      <button type="button" class="gg-reset" data-reset><i class="fas fa-rotate-left"></i> Restablecer estilos</button>`;
+    const P = this.pal, id = it.id;
+    P.querySelector('[data-x]').addEventListener('click', () => { P.hidden = true; this.host.querySelector('[data-a=pal]').setAttribute('aria-pressed', 'false'); });
+    P.querySelector('[data-p=obj]').addEventListener('change', (e) => this.buildPal(e.target.value));
+    P.querySelectorAll('[data-c]').forEach((b) => b.addEventListener('click', () => { this.setSt(id, { color: b.dataset.c }); this.buildPal(id); }));
+    P.querySelector('[data-p=color]').addEventListener('input', (e) => this.setSt(id, { color: e.target.value }));
+    P.querySelectorAll('input[type=range]').forEach((r) => r.addEventListener('input', (e) => { this.setSt(id, { [r.dataset.p]: parseFloat(e.target.value) }); P.querySelector('[data-w]').textContent = e.target.value; }));
+    P.querySelectorAll('.gg-seg button').forEach((b) => b.addEventListener('click', () => { this.setSt(id, { [b.parentElement.dataset.p]: b.dataset.v }); this.buildPal(id); }));
+    P.querySelector('[data-p=hidden]').addEventListener('change', (e) => this.setSt(id, { hidden: e.target.checked }));
+    P.querySelectorAll('[data-o]').forEach((cb) => cb.addEventListener('change', () => { this.opt[cb.dataset.o] = cb.checked; this.draw(); }));
+    P.querySelector('[data-reset]').addEventListener('click', () => { this.styles = {}; this.opt = { major: true, minor: true, axes: true, nums: true, labels: true }; this.buildPal(id); this.draw(); });
+  }
+}
+
+/* ==========================================================================
+   ESCENARIOS: x(t) en metros, v(t) = dx/dt en m/s (derivada exacta)
+   ========================================================================== */
+const ESC = {
+  bus: {
+    T: 10, x: (t) => 0.6 * t * t, v: (t) => 1.2 * t, xr: [0, 60], vG: 15, gStep: 3, strobe: 1, t0: 4, dt: 3, suelo: 'via',
+    xTex: 'x(t)=0{,}6\\,t^{2}',
+    desc: 'Un <b>bus eléctrico</b> del transporte público sale del paradero desde el reposo y acelera de manera uniforme durante 10 s. No emite gases por el tubo de escape, y conducirlo con arranques suaves ahorra energía.',
+    preg: '¿Qué velocidad lleva el bus exactamente a los 4 s?'
+  },
+  bici: {
+    T: 24, x: (t) => 5 * t + (15 / PI) * (1 - Math.cos(PI * t / 6)), v: (t) => 5 + 2.5 * Math.sin(PI * t / 6), xr: [0, 120], vG: 10, gStep: 2, strobe: 2, t0: 3, dt: 6, suelo: 'ciclo',
+    xTex: 'x(t)=5t+\\tfrac{15}{\\pi}\\left(1-\\cos\\tfrac{\\pi t}{6}\\right)',
+    desc: 'Una <b>ciclista</b> va por la ciclovía hacia una reserva natural. Su rapidez sube y baja con el terreno: acelera en las bajadas y se frena en las subidas.',
+    preg: '¿Qué tan rápido va justo en t = 3 s, cuando baja más rápido?'
+  },
+  tronco: {
+    T: 14, x: (t) => 12 * (1 - Math.exp(-t / 4)), v: (t) => 3 * Math.exp(-t / 4), xr: [0, 12], vG: 4, gStep: 1, strobe: 1, t0: 2, dt: 4, suelo: 'rio',
+    xTex: 'x(t)=12\\left(1-e^{-t/4}\\right)',
+    desc: 'Un <b>flotador</b> de madera, como los que se usan para aforar un río, entra en un remanso: el agua se calma y el flotador se frena poco a poco.',
+    preg: '¿Con qué velocidad se mueve el flotador a los 2 s? ¿Llega a detenerse del todo?'
+  },
+  dron: {
+    T: 20, x: (t) => 40 * Math.sin(PI * t / 20), v: (t) => 2 * PI * Math.cos(PI * t / 20), xr: [0, 40], vG: 8, gStep: 2, strobe: 1, t0: 10, dt: 5, suelo: 'aire',
+    xTex: 'x(t)=40\\,\\sin\\tfrac{\\pi t}{20}',
+    desc: 'Un <b>dron de monitoreo de aves</b> vuela en línea recta hasta un nido a 40 m, lo fotografía sin detenerse y regresa a la base.',
+    preg: '¿Qué velocidad tiene el dron justo cuando está sobre el nido (t = 10 s)?'
+  }
+};
+
+/* ------------------------------ estado ------------------------------------ */
+const S = {
+  id: 'bus', t: 0, playing: false, speed: 1, t0: 4, dt: 3,
+  showSec: true, showTan: false, showTri: true, revealed: false,
+  zoom: 1, tabla: [], cinta: true, vector: true, pq: true,
+  busy: false, cancel: false, zBusy: false, zCancel: false
+};
+const esc = () => ESC[S.id];
+const fmtDt = (dt) => { const s = nf(dt, dt < 0.01 ? 4 : dt < 1 ? 3 : 2); return dt < 0.01 ? s.replace(/0$/, '') : s; };
+const dxDig = (dt) => (dt < 0.01 ? 6 : dt < 0.1 ? 5 : 3);
+
+/* ==========================================================================
+   ESCENA ANIMADA (canvas). Se dibuja en coordenadas virtuales de 320 px de
+   alto; el ancho virtual depende del tamaño real del lienzo.
+   ========================================================================== */
+const SCN = { cv: $('#cvEscena'), W: 0, H: 0, dpr: 1, ctx: null };
+const GAU = { cv: $('#cvGauge'), W: 0, H: 0, dpr: 1, ctx: null, vDisp: 0 };
+function fit(o) {
+  const r = o.cv.getBoundingClientRect();
+  if (r.width < 10) return;
+  o.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  o.W = r.width; o.H = r.height;
+  o.cv.width = Math.round(r.width * o.dpr); o.cv.height = Math.round(r.height * o.dpr);
+  o.ctx = o.cv.getContext('2d');
+}
+if ('ResizeObserver' in window) { new ResizeObserver(() => fit(SCN)).observe(SCN.cv); new ResizeObserver(() => fit(GAU)).observe(GAU.cv); }
+window.addEventListener('resize', () => { fit(SCN); fit(GAU); });
+
+function rr(c, x, y, w, h, r) {
+  c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.quadraticCurveTo(x + w, y, x + w, y + r);
+  c.lineTo(x + w, y + h - r); c.quadraticCurveTo(x + w, y + h, x + w - r, y + h); c.lineTo(x + r, y + h);
+  c.quadraticCurveTo(x, y + h, x, y + h - r); c.lineTo(x, y + r); c.quadraticCurveTo(x, y, x + r, y); c.closePath();
+}
+function cloud(c, x, y, s) {
+  c.fillStyle = 'rgba(255,255,255,.92)'; c.beginPath();
+  [[0, 0, 16], [18, -8, 20], [40, 0, 16], [20, 6, 16]].forEach(([dx, dy, r]) => { c.moveTo(x + dx * s + r * s, y + dy * s); c.arc(x + dx * s, y + dy * s, r * s, 0, PI * 2); });
+  c.fill();
+}
+function tree(c, x, y, s, col) {
+  c.fillStyle = '#7c4a1e'; c.fillRect(x - 3 * s, y - 18 * s, 6 * s, 18 * s);
+  c.fillStyle = col; c.beginPath();
+  c.arc(x, y - 30 * s, 14 * s, 0, PI * 2); c.arc(x - 10 * s, y - 22 * s, 10 * s, 0, PI * 2); c.arc(x + 10 * s, y - 22 * s, 10 * s, 0, PI * 2);
+  c.fill();
+}
+function arrow(c, x0, y, len, col, label) {
+  const dir = Math.sign(len) || 1, L = Math.abs(len);
+  c.strokeStyle = col; c.fillStyle = col; c.lineWidth = 4; c.lineCap = 'round';
+  if (L > 12) { c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 + dir * (L - 10), y); c.stroke(); }
+  if (L > 2) { c.beginPath(); c.moveTo(x0 + dir * L, y); c.lineTo(x0 + dir * Math.max(0, L - 14), y - 7); c.lineTo(x0 + dir * Math.max(0, L - 14), y + 7); c.closePath(); c.fill(); }
+  c.font = '700 12px Inter, sans-serif'; c.textAlign = dir > 0 ? 'left' : 'right'; c.textBaseline = 'middle';
+  c.lineWidth = 3.5; c.strokeStyle = 'rgba(255,255,255,.9)';
+  const tx = x0 + dir * (Math.max(L, 4) + 6);
+  c.strokeText(label, tx, y); c.fillText(label, tx, y);
+}
+
+/* sprites */
+function drawBus(c, px, base, ang) {
+  const w = 86, h = 36, x = px - w / 2, y = base - h - 9;
+  c.fillStyle = 'rgba(0,0,0,.2)'; c.beginPath(); c.ellipse(px, base + 1, w * 0.5, 4, 0, 0, PI * 2); c.fill();
+  const g = c.createLinearGradient(0, y, 0, y + h); g.addColorStop(0, '#22c55e'); g.addColorStop(1, '#15803d');
+  rr(c, x, y, w, h, 8); c.fillStyle = g; c.fill();
+  c.fillStyle = '#bbf7d0'; c.fillRect(x + 5, y + 3, w - 12, 3);
+  c.fillStyle = '#e0f2fe';
+  for (let i = 0; i < 4; i++) { rr(c, x + 6 + i * 16, y + 9, 12, 11, 2); c.fill(); }
+  rr(c, x + w - 13, y + 7, 10, 17, 3); c.fill();
+  c.fillStyle = '#facc15'; c.beginPath(); c.moveTo(x + 36, y + 23); c.lineTo(x + 31, y + 30); c.lineTo(x + 35, y + 30); c.lineTo(x + 32, y + 35); c.lineTo(x + 39, y + 27); c.lineTo(x + 35, y + 27); c.closePath(); c.fill();
+  c.fillStyle = '#fde68a'; c.beginPath(); c.arc(x + w - 2, y + h - 7, 2.5, 0, PI * 2); c.fill();
+  [x + 18, x + w - 18].forEach((wx) => {
+    c.fillStyle = '#111827'; c.beginPath(); c.arc(wx, base - 7, 8, 0, PI * 2); c.fill();
+    c.fillStyle = '#9ca3af'; c.beginPath(); c.arc(wx, base - 7, 3.5, 0, PI * 2); c.fill();
+    c.strokeStyle = '#d1d5db'; c.lineWidth = 1.5; c.beginPath();
+    for (let k = 0; k < 3; k++) { const a = ang + k * PI / 1.5; c.moveTo(wx, base - 7); c.lineTo(wx + 6.5 * Math.cos(a), base - 7 + 6.5 * Math.sin(a)); }
+    c.stroke();
+  });
+}
+function drawBike(c, px, base, ang) {
+  const r = 11, yA = base - r, xr = px - 17, xf = px + 17;
+  c.fillStyle = 'rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(px, base + 1, 30, 3.5, 0, 0, PI * 2); c.fill();
+  c.lineWidth = 2.5; c.strokeStyle = '#1f2937';
+  [xr, xf].forEach((wx) => {
+    c.beginPath(); c.arc(wx, yA, r, 0, PI * 2); c.stroke();
+    c.lineWidth = 1; c.beginPath();
+    for (let k = 0; k < 4; k++) { const a = ang + k * PI / 4; c.moveTo(wx - r * Math.cos(a), yA - r * Math.sin(a)); c.lineTo(wx + r * Math.cos(a), yA + r * Math.sin(a)); }
+    c.stroke(); c.lineWidth = 2.5;
+  });
+  const crank = { x: px - 2, y: yA }, seat = { x: px - 6, y: base - 32 }, bar = { x: px + 12, y: base - 34 };
+  c.strokeStyle = '#0ea5e9'; c.lineWidth = 3; c.beginPath();
+  c.moveTo(xr, yA); c.lineTo(crank.x, crank.y); c.lineTo(seat.x, seat.y); c.lineTo(xr, yA);
+  c.moveTo(crank.x, crank.y); c.lineTo(bar.x - 2, bar.y + 6); c.lineTo(seat.x + 2, seat.y + 2);
+  c.moveTo(xf, yA); c.lineTo(bar.x, bar.y); c.stroke();
+  const pd = { x: crank.x + 7 * Math.cos(ang * 0.6), y: crank.y + 7 * Math.sin(ang * 0.6) };
+  const sh = { x: px + 4, y: base - 52 };
+  c.strokeStyle = '#1e3a8a'; c.lineWidth = 4; c.lineCap = 'round'; c.beginPath();
+  c.moveTo(seat.x, seat.y - 2); c.lineTo((seat.x + pd.x) / 2 + 6, (seat.y + pd.y) / 2 - 4); c.lineTo(pd.x, pd.y); c.stroke();
+  c.strokeStyle = '#f97316'; c.lineWidth = 6; c.beginPath(); c.moveTo(seat.x, seat.y - 3); c.lineTo(sh.x, sh.y); c.stroke();
+  c.strokeStyle = '#fdba74'; c.lineWidth = 3; c.beginPath(); c.moveTo(sh.x, sh.y + 2); c.lineTo(bar.x, bar.y); c.stroke();
+  c.fillStyle = '#fcd9b6'; c.beginPath(); c.arc(sh.x + 4, sh.y - 8, 6, 0, PI * 2); c.fill();
+  c.fillStyle = '#16a34a'; c.beginPath(); c.arc(sh.x + 4, sh.y - 9, 6.5, PI, 2 * PI); c.fill();
+}
+function drawLog(c, px, base, tt) {
+  const bob = Math.sin(tt * 2.2) * 1.5, y = base - 8 + bob;
+  c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1.5;
+  for (let k = 0; k < 2; k++) { const rr2 = 28 + ((tt * 14 + k * 12) % 24); c.globalAlpha = 1 - ((tt * 14 + k * 12) % 24) / 24; c.beginPath(); c.ellipse(px, base, rr2, rr2 * 0.18, 0, 0, PI * 2); c.stroke(); }
+  c.globalAlpha = 1;
+  const g = c.createLinearGradient(0, y - 8, 0, y + 8); g.addColorStop(0, '#b45309'); g.addColorStop(1, '#78350f');
+  rr(c, px - 24, y - 8, 48, 16, 8); c.fillStyle = g; c.fill();
+  c.fillStyle = '#f59e0b'; c.beginPath(); c.ellipse(px + 22, y, 4, 7.5, 0, 0, PI * 2); c.fill();
+  c.strokeStyle = '#92400e'; c.lineWidth = 1; c.beginPath(); c.ellipse(px + 22, y, 2, 4, 0, 0, PI * 2); c.stroke();
+  c.fillStyle = '#ef4444'; c.beginPath(); c.moveTo(px - 2, y - 8); c.lineTo(px - 2, y - 26); c.lineTo(px + 12, y - 21); c.lineTo(px - 2, y - 16); c.fill();
+  c.strokeStyle = '#334155'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(px - 2, y - 8); c.lineTo(px - 2, y - 26); c.stroke();
+}
+function drawDrone(c, px, y, tt) {
+  const yy = y + Math.sin(tt * 3) * 2;
+  c.fillStyle = 'rgba(0,0,0,.12)'; c.beginPath(); c.ellipse(px, 205, 22, 3, 0, 0, PI * 2); c.fill();
+  c.strokeStyle = '#334155'; c.lineWidth = 3; c.beginPath(); c.moveTo(px - 24, yy - 4); c.lineTo(px + 24, yy - 4); c.stroke();
+  [-24, 24].forEach((dx) => {
+    c.fillStyle = '#475569'; c.fillRect(px + dx - 2, yy - 9, 4, 6);
+    const w = 3 + 11 * Math.abs(Math.cos(tt * 45 + dx));
+    c.fillStyle = 'rgba(148,163,184,.75)'; c.beginPath(); c.ellipse(px + dx, yy - 10, w, 2.2, 0, 0, PI * 2); c.fill();
+  });
+  rr(c, px - 14, yy - 7, 28, 11, 4); c.fillStyle = '#1e293b'; c.fill();
+  c.fillStyle = (Math.floor(tt * 3) % 2) ? '#22c55e' : '#ef4444'; c.beginPath(); c.arc(px + 10, yy - 2, 2, 0, PI * 2); c.fill();
+  c.fillStyle = '#0f172a'; c.beginPath(); c.arc(px, yy + 7, 4, 0, PI * 2); c.fill();
+  c.fillStyle = '#38bdf8'; c.beginPath(); c.arc(px, yy + 7, 1.8, 0, PI * 2); c.fill();
+}
+
+/* corrientes del río (rayas que avanzan con la velocidad local del agua) */
+const streaks = Array.from({ length: 26 }, (_, i) => ({ xm: (i * 0.47) % 11, lane: i % 4 }));
+
+function drawScene(now) {
+  const o = SCN; if (!o.ctx || o.W < 10) return;
+  const c = o.ctx, k = o.H / 320, VW = o.W / k, E = esc(), tt = now / 1000;
+  c.setTransform(o.dpr * k, 0, 0, o.dpr * k, 0, 0);
+  const L = 54, R = VW - 46;
+  const X = (xm) => L + ((xm - E.xr[0]) / (E.xr[1] - E.xr[0])) * (R - L);
+
+  /* cielo, sol, nubes, montañas */
+  let g = c.createLinearGradient(0, 0, 0, 180); g.addColorStop(0, '#6dbdf2'); g.addColorStop(1, '#dff3ff');
+  c.fillStyle = g; c.fillRect(0, 0, VW, 182);
+  c.save(); c.translate(VW - 80, 46); c.rotate(tt * 0.15);
+  c.strokeStyle = 'rgba(253,224,71,.8)'; c.lineWidth = 3;
+  for (let i = 0; i < 12; i++) { c.rotate(PI / 6); c.beginPath(); c.moveTo(26, 0); c.lineTo(36, 0); c.stroke(); }
+  c.restore();
+  c.fillStyle = '#fde047'; c.beginPath(); c.arc(VW - 80, 46, 20, 0, PI * 2); c.fill();
+  for (let i = 0; i < 3; i++) cloud(c, ((tt * (6 + i * 3) + i * VW / 3) % (VW + 180)) - 90, 32 + i * 20, 0.75 + 0.15 * i);
+  c.fillStyle = '#a7d3c0'; c.beginPath(); c.moveTo(0, 182);
+  for (let x = 0; x <= VW; x += 8) c.lineTo(x, 112 - 26 * Math.sin(x * 0.006 + 0.5) - 13 * Math.sin(x * 0.019 + 2));
+  c.lineTo(VW, 182); c.closePath(); c.fill();
+  c.fillStyle = '#5aa785'; c.beginPath(); c.moveTo(0, 182);
+  for (let x = 0; x <= VW; x += 8) c.lineTo(x, 145 - 16 * Math.sin(x * 0.01 + 1.3) - 8 * Math.sin(x * 0.033));
+  c.lineTo(VW, 182); c.closePath(); c.fill();
+  g = c.createLinearGradient(0, 172, 0, 320); g.addColorStop(0, '#86c96f'); g.addColorStop(1, '#5ea84b');
+  c.fillStyle = g; c.fillRect(0, 172, VW, 148);
+  for (let i = 0, x = 14; x < VW; i++, x += 58 + (i % 3) * 14) tree(c, x, 186, 0.62 + (i % 3) * 0.08, i % 2 ? '#2f855a' : '#38a169');
+
+  /* suelo según la situación */
+  let base = 228, objY = 0;
+  if (E.suelo === 'via') {
+    c.fillStyle = '#cbd5e1'; c.fillRect(0, 184, VW, 7);
+    c.fillStyle = '#374151'; c.fillRect(0, 191, VW, 47);
+    c.strokeStyle = '#f8fafc'; c.lineWidth = 2; c.setLineDash([18, 14]); c.beginPath(); c.moveTo(0, 214); c.lineTo(VW, 214); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#e5e7eb'; c.fillRect(0, 238, VW, 6);
+    const sx = X(0) - 34; c.fillStyle = '#475569'; c.fillRect(sx, 140, 3, 46);
+    rr(c, sx - 12, 128, 27, 22, 4); c.fillStyle = '#1d4ed8'; c.fill();
+    c.fillStyle = '#fff'; c.font = '800 13px Inter'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('P', sx + 1.5, 139.5);
+    base = 232;
+  } else if (E.suelo === 'ciclo') {
+    c.fillStyle = '#d9604c'; c.fillRect(0, 197, VW, 36);
+    c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.moveTo(0, 199); c.lineTo(VW, 199); c.moveTo(0, 231); c.lineTo(VW, 231); c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1.5;
+    for (let x = 90; x < VW; x += 170) { c.beginPath(); c.arc(x - 8, 215, 5, 0, PI * 2); c.arc(x + 8, 215, 5, 0, PI * 2); c.moveTo(x - 8, 215); c.lineTo(x, 209); c.lineTo(x + 8, 215); c.stroke(); }
+    base = 226;
+  } else if (E.suelo === 'rio') {
+    g = c.createLinearGradient(0, 0, VW, 0); g.addColorStop(0, '#0369a1'); g.addColorStop(0.75, '#0ea5e9'); g.addColorStop(1, '#5eead4');
+    c.fillStyle = '#a16207'; c.fillRect(0, 184, VW, 4); c.fillRect(0, 240, VW, 4);
+    c.fillStyle = g; c.fillRect(0, 188, VW, 52);
+    c.lineCap = 'round';
+    streaks.forEach((s) => {
+      const u = Math.max(0, 3 - s.xm / 4), px = X(s.xm), y = 196 + s.lane * 12;
+      c.strokeStyle = `rgba(255,255,255,${0.15 + 0.5 * u / 3})`; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(px, y); c.lineTo(px + 6 + 14 * u / 3, y); c.stroke();
+    });
+    c.fillStyle = '#15803d';
+    [[0.86, 200], [0.93, 226], [0.97, 206], [0.9, 216]].forEach(([f, y]) => { c.beginPath(); c.ellipse(L + f * (R - L) + 30, y, 9, 4, 0.3, 0.3, PI * 2); c.fill(); });
+    c.fillStyle = 'rgba(255,255,255,.85)'; c.font = '700 11px Inter'; c.textAlign = 'right'; c.textBaseline = 'top'; c.fillText('remanso', VW - 8, 190);
+    c.textAlign = 'left'; c.fillText('corriente →', 8, 190);
+    base = 214;
+  } else {
+    c.fillStyle = '#9ca3af'; c.beginPath(); c.ellipse(X(0), 206, 22, 6, 0, 0, PI * 2); c.fill();
+    c.fillStyle = '#fff'; c.font = '800 10px Inter'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('H', X(0), 206);
+    const nx = X(40);
+    c.fillStyle = '#7c4a1e'; c.fillRect(nx + 22, 110, 9, 96);
+    c.strokeStyle = '#7c4a1e'; c.lineWidth = 5; c.beginPath(); c.moveTo(nx + 24, 150); c.lineTo(nx - 4, 142); c.stroke();
+    c.fillStyle = '#2f855a'; c.beginPath(); c.arc(nx + 26, 98, 26, 0, PI * 2); c.arc(nx + 6, 112, 16, 0, PI * 2); c.arc(nx + 44, 112, 16, 0, PI * 2); c.fill();
+    c.fillStyle = '#a16207'; c.beginPath(); c.ellipse(nx, 140, 11, 5, 0, 0, PI); c.fill();
+    c.fillStyle = '#e0f2fe'; [[-4, 136], [1, 135], [5, 137]].forEach(([dx, dy]) => { c.beginPath(); c.arc(nx + dx, dy, 2.4, 0, PI * 2); c.fill(); });
+    c.strokeStyle = 'rgba(30,41,59,.25)'; c.setLineDash([5, 6]); c.lineWidth = 1.5; c.beginPath(); c.moveTo(X(0), 124); c.lineTo(nx, 124); c.stroke(); c.setLineDash([]);
+    objY = 124;
+  }
+
+  /* puntos P y Q, y Δx */
+  if (S.pq) {
+    const t1 = S.t0 + S.dt, pP = X(E.x(S.t0)), pQ = X(E.x(t1)), top = E.suelo === 'aire' ? 100 : 160;
+    [[pQ, C.sec, 'Q'], [pP, C.tan, 'P']].forEach(([px, col, lb]) => {
+      c.strokeStyle = col; c.lineWidth = 1.5; c.setLineDash([4, 4]); c.beginPath(); c.moveTo(px, top); c.lineTo(px, 268); c.stroke(); c.setLineDash([]);
+      c.fillStyle = col; c.beginPath(); c.moveTo(px, top); c.lineTo(px + (lb === 'P' ? -16 : 16), top + 7); c.lineTo(px, top + 14); c.fill();
+      c.fillStyle = '#fff'; c.font = '800 10px Inter'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(lb, px + (lb === 'P' ? -6 : 6), top + 7);
+    });
+    const yb = 249, dxp = pQ - pP;
+    c.strokeStyle = C.delta; c.fillStyle = C.delta; c.lineWidth = 2;
+    if (Math.abs(dxp) > 3) {
+      c.beginPath(); c.moveTo(pP, yb); c.lineTo(pQ, yb); c.stroke();
+      const d = Math.sign(dxp);
+      c.beginPath(); c.moveTo(pQ, yb); c.lineTo(pQ - d * 7, yb - 4); c.lineTo(pQ - d * 7, yb + 4); c.fill();
+    }
+    c.font = '700 11px Inter'; c.textBaseline = 'middle';
+    const lab = `Δx = ${nf(E.x(t1) - E.x(S.t0), 2)} m`;
+    const mid = (pP + pQ) / 2; const tw = c.measureText(lab).width + 10;
+    rr(c, clampN(mid - tw / 2, 2, VW - tw - 2), yb - 8, tw, 16, 6); c.fillStyle = 'rgba(255,247,237,.95)'; c.fill();
+    c.fillStyle = C.delta; c.textAlign = 'center'; c.fillText(lab, clampN(mid, tw / 2 + 2, VW - tw / 2 - 2), yb);
+  }
+
+  /* regla */
+  const ry = 260;
+  c.fillStyle = 'rgba(255,255,255,.88)'; c.fillRect(L - 14, ry - 2, R - L + 28, 18);
+  c.strokeStyle = '#1f2937'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(L, ry); c.lineTo(R, ry); c.stroke();
+  const nice = ggNice(E.xr[1] - E.xr[0], R - L, 52);
+  c.font = '500 10px "Fira Code", monospace'; c.fillStyle = '#1f2937'; c.textAlign = 'center'; c.textBaseline = 'top';
+  c.beginPath();
+  for (let m = 0; m * nice.step / nice.sub <= E.xr[1] - E.xr[0] + 1e-9; m++) {
+    const xm = E.xr[0] + m * nice.step / nice.sub, px = X(xm), major = m % nice.sub === 0;
+    c.moveTo(px, ry); c.lineTo(px, ry + (major ? 6 : 3));
+    if (major) c.fillText(ggFmt(xm, nice.step), px, ry + 6);
+  }
+  c.stroke();
+  c.textAlign = 'left'; c.fillText('m', R + 12, ry + 6);
+
+  /* cinta registradora */
+  if (S.cinta) {
+    const ty0 = 291;
+    c.fillStyle = '#fdf6e3'; c.strokeStyle = '#e7d8b0'; c.lineWidth = 1;
+    c.fillRect(L - 14, ty0, R - L + 28, 27); c.strokeRect(L - 14 + 0.5, ty0 + 0.5, R - L + 27, 26);
+    c.font = '700 10px Inter'; c.textAlign = 'left'; c.textBaseline = 'bottom';
+    const ttl = `Cinta registradora: un punto cada ${nf(E.strobe, 0)} s`, tw0 = c.measureText(ttl).width;
+    c.fillStyle = 'rgba(253,246,227,.95)'; rr(c, L - 14, ty0 - 13, tw0 + 12, 13, 4); c.fill();
+    c.fillStyle = '#7a6a42'; c.fillText(ttl, L - 8, ty0 - 1);
+    const n = Math.floor(Math.min(S.t, E.T) / E.strobe + 1e-9);
+    let lastPx = -99;
+    for (let i = 0; i <= n; i++) {
+      const ti = i * E.strobe, px = X(E.x(ti)), back = E.v(ti) < -1e-9 || (E.suelo === 'aire' && ti > E.T / 2);
+      const py = back ? ty0 + 20 : ty0 + 11;
+      c.fillStyle = i === n ? C.tan : '#1f2937'; c.beginPath(); c.arc(px, py, i === n ? 3.6 : 2.8, 0, PI * 2); c.fill();
+      if (!back && px - lastPx > 14) { c.fillStyle = '#8a7a52'; c.font = '500 8px "Fira Code"'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText(String(ti), px, ty0 + 7.5); lastPx = px; }
+    }
+    if (E.suelo === 'aire') { c.fillStyle = '#8a7a52'; c.font = '600 8.5px Inter'; c.textAlign = 'right'; c.textBaseline = 'middle'; c.fillText('ida', L - 16, ty0 + 10); c.fillText('regreso', L - 16, ty0 + 21); }
+  }
+
+  /* objeto, marcador de posición y vector velocidad */
+  const xm = E.x(S.t), vx = E.v(S.t), px = X(xm);
+  c.fillStyle = C.curva; c.beginPath(); c.moveTo(px, ry - 1); c.lineTo(px - 5, ry - 9); c.lineTo(px + 5, ry - 9); c.fill();
+  const ang = (xm / 0.35) % (2 * PI);
+  let ay;
+  if (E.suelo === 'via') { drawBus(c, px, base, ang); ay = base - 60; }
+  else if (E.suelo === 'ciclo') { drawBike(c, px, base, ang); ay = base - 78; }
+  else if (E.suelo === 'rio') { drawLog(c, px, base, tt); ay = base - 40; }
+  else { drawDrone(c, px, objY, tt); ay = objY - 26; }
+  if (S.vector) {
+    const len = (vx / E.vG) * 130;
+    arrow(c, px, ay, len, C.vel, `v = ${nf(vx, 2)} m/s`);
+  }
+}
+
+/* ------------------------------ velocímetro ------------------------------- */
+function drawGauge() {
+  const o = GAU; if (!o.ctx || o.W < 10) return;
+  const c = o.ctx, W = o.W, H = o.H, E = esc();
+  c.setTransform(o.dpr, 0, 0, o.dpr, 0, 0); c.clearRect(0, 0, W, H);
+  const cx = W / 2, cy = H * 0.88, r = Math.min(W * 0.43, H * 0.8);
+  const target = Math.abs(E.v(S.t));
+  o.vDisp += (target - o.vDisp) * 0.3;
+  const N = 48;
+  for (let i = 0; i < N; i++) {
+    const a0 = PI + (i / N) * PI, a1 = PI + ((i + 1) / N) * PI + 0.01;
+    c.strokeStyle = `hsl(${130 - 130 * i / N}, 75%, 48%)`; c.lineWidth = 9;
+    c.beginPath(); c.arc(cx, cy, r - 5, a0, a1); c.stroke();
+  }
+  c.strokeStyle = '#e2e8f0'; c.fillStyle = '#e2e8f0'; c.lineWidth = 1.5;
+  c.font = '500 10px "Fira Code", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  for (let v = 0; v <= E.vG + 1e-9; v += E.gStep / 2) {
+    const a = PI + (v / E.vG) * PI, major = Math.abs(v / E.gStep - Math.round(v / E.gStep)) < 1e-6;
+    const r1 = r - 12, r2 = r1 - (major ? 9 : 5);
+    c.beginPath(); c.moveTo(cx + r1 * Math.cos(a), cy + r1 * Math.sin(a)); c.lineTo(cx + r2 * Math.cos(a), cy + r2 * Math.sin(a)); c.stroke();
+    if (major) c.fillText(String(v), cx + (r2 - 10) * Math.cos(a), cy + (r2 - 10) * Math.sin(a));
+  }
+  const a = PI + Math.min(o.vDisp / E.vG, 1.03) * PI;
+  c.strokeStyle = '#f87171'; c.lineWidth = 3.5; c.lineCap = 'round';
+  c.shadowColor = 'rgba(248,113,113,.8)'; c.shadowBlur = 8;
+  c.beginPath(); c.moveTo(cx - 10 * Math.cos(a), cy - 10 * Math.sin(a)); c.lineTo(cx + (r - 16) * Math.cos(a), cy + (r - 16) * Math.sin(a)); c.stroke();
+  c.shadowBlur = 0;
+  c.fillStyle = '#f8fafc'; c.beginPath(); c.arc(cx, cy, 6, 0, PI * 2); c.fill();
+  c.fillStyle = '#94a3b8'; c.font = '600 9px Inter'; c.fillText('rapidez (m/s)', cx, cy - r * 0.38);
+}
+
+/* ------------------------------ lecturas escena --------------------------- */
+const R_ = { t: $('#rT'), x: $('#rX'), v: $('#rV'), kmh: $('#rKmh'), dir: $('#rDir'), vmed: $('#rVmed') };
+function updEscenaReadouts() {
+  const E = esc(), x = E.x(S.t), v = E.v(S.t);
+  R_.t.textContent = `${nf(S.t, 2)} s`;
+  R_.x.textContent = `${nf(x, 2)} m`;
+  R_.v.textContent = nf(v, 2);
+  R_.kmh.textContent = nf(Math.abs(v) * 3.6, 1);
+  R_.dir.textContent = Math.abs(v) < 0.005 ? 'quieto en este instante' : v > 0 ? 'avanza →' : '← regresa';
+  R_.vmed.textContent = S.t > 0.005 ? `${nf((x - E.x(0)) / S.t, 2)} m/s` : '—';
+  $('#tR').value = S.t;
+}
+
+/* ==========================================================================
+   GRÁFICAS
+   ========================================================================== */
+function xtView(E) {
+  const pad = (E.xr[1] - E.xr[0]) * 0.12;
+  return { xmin: -0.07 * E.T, xmax: E.T * 1.07, ymin: Math.min(E.xr[0], 0) - pad, ymax: E.xr[1] + pad };
+}
+function pxSize(g, dx, dy) {
+  if (!g.view) return [999, 999];
+  const v = g.view;
+  return [Math.abs(dx) / (v.xmax - v.xmin) * g.W, Math.abs(dy) / (v.ymax - v.ymin) * g.H];
+}
+const gXT = new GGGraph($('#ggXT'), {
+  title: 'Gráfica posición–tiempo · secante y tangente', xLabel: 't (s)', yLabel: 'x (m)', xVar: 't', yVar: 'x',
+  scene: (g) => {
+    const E = esc(), t0 = S.t0, t1 = S.t0 + S.dt, x0 = E.x(t0), x1 = E.x(t1), vm = (x1 - x0) / S.dt, vi = E.v(t0);
+    const [pw, ph] = pxSize(g, S.dt, x1 - x0);
+    return {
+      view: xtView(E),
+      items: [
+        { id: 'curva', name: 'x(t) posición', type: 'fn', f: E.x, domain: [0, E.T], color: C.curva, width: 3.2 },
+        S.showSec && { id: 'sec', name: 'Secante PQ (v media)', type: 'fn', f: (t) => x0 + vm * (t - t0), color: C.sec, width: 2.2, dash: 'dash' },
+        (S.showTan) && { id: 'tan', name: 'Tangente en P (v instantánea)', type: 'fn', f: (t) => x0 + vi * (t - t0), color: C.tan, width: 2.4 },
+        S.showTri && { id: 'tri', name: 'Triángulo Δt, Δx', type: 'poly', data: [{ x: t0, y: x0 }, { x: t1, y: x0 }, { x: t1, y: x1 }], color: C.delta, width: 2.2 },
+        S.showTri && pw > 34 && { id: 'lt', type: 'text', x: (t0 + t1) / 2, y: x0, dy: x1 >= x0 ? 11 : -11, text: `Δt = ${fmtDt(S.dt)} s`, color: C.delta, font: '700 12px Inter, sans-serif' },
+        S.showTri && ph > 22 && { id: 'lx', type: 'text', x: t1, y: (x0 + x1) / 2, dx: 7, align: 'left', text: `Δx = ${nf(x1 - x0, 2)} m`, color: C.delta, font: '700 12px Inter, sans-serif' },
+        { id: 'ahora', name: 'Objeto ahora', type: 'points', data: [{ x: S.t, y: E.x(S.t), info: 'Posición del objeto en la animación' }], color: C.ahora, size: 4.5, shape: 'diamond' },
+        { id: 'Q', name: 'Q', legend: false, type: 'points', data: [{ x: t1, y: x1, label: 'Q', info: 'Q = (t₀+Δt; x(t₀+Δt))' }], color: C.sec, size: 6.5, drag: (j, tx) => setDt(tx - S.t0) },
+        { id: 'P', name: 'P', legend: false, type: 'points', data: [{ x: t0, y: x0, label: 'P', info: `v(t₀) = ${S.revealed ? nf(vi, 3) : '?'} m/s` }], color: C.tan, size: 7, drag: (j, tx) => setT0(tx) }
+      ]
+    };
+  }
+});
+const gMic = new GGGraph($('#ggMic'), {
+  title: 'Microscopio alrededor de P', xLabel: 't (s)', yLabel: 'x (m)', xVar: 't', yVar: 'x',
+  scene: () => {
+    const E = esc(), t0 = S.t0, x0 = E.x(t0), vi = E.v(t0), t1 = S.t0 + S.dt, x1 = E.x(t1), vm = (x1 - x0) / S.dt;
+    const V = xtView(E), hw = (V.xmax - V.xmin) / 2 / S.zoom, hh = (V.ymax - V.ymin) / 2 / S.zoom;
+    return {
+      view: { xmin: t0 - hw, xmax: t0 + hw, ymin: x0 - hh, ymax: x0 + hh },
+      items: [
+        { id: 'curva', name: 'x(t) posición', type: 'fn', f: E.x, domain: [0, E.T], color: C.curva, width: 5 },
+        { id: 'tan', name: 'Tangente en P', type: 'fn', f: (t) => x0 + vi * (t - t0), color: C.tan, width: 2, dash: 'dash' },
+        S.showSec && { id: 'sec', name: 'Secante PQ', type: 'fn', f: (t) => x0 + vm * (t - t0), color: C.sec, width: 1.6, dash: 'dot', hidden: true },
+        { id: 'Q', name: 'Q', legend: false, type: 'points', data: [{ x: t1, y: x1, label: 'Q' }], color: C.sec, size: 5.5 },
+        { id: 'P', name: 'P', legend: false, type: 'points', data: [{ x: t0, y: x0, label: 'P' }], color: C.tan, size: 6.5 }
+      ]
+    };
+  }
+});
+const gVT = new GGGraph($('#ggVT'), {
+  title: 'Gráfica velocidad–tiempo', xLabel: 't (s)', yLabel: 'v (m/s)', xVar: 't', yVar: 'v',
+  scene: (g) => {
+    const E = esc(), t0 = S.t0, t1 = S.t0 + S.dt, vi = E.v(t0), vm = (E.x(t1) - E.x(t0)) / S.dt;
+    let lo = 0, hi = 0;
+    for (let i = 0; i <= 200; i++) { const v = E.v(E.T * i / 200); lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const pad = (hi - lo) * 0.15 || 1;
+    const [pw] = pxSize(g, S.dt, 0);
+    return {
+      view: { xmin: -0.07 * E.T, xmax: E.T * 1.07, ymin: lo - pad, ymax: hi + pad },
+      items: [
+        { id: 'area', name: 'Área = Δx', type: 'area', f: E.v, domain: [t0, t1], color: C.delta, alpha: 0.32 },
+        { id: 'rect', name: 'Rectángulo de altura v̄', type: 'poly', data: [{ x: t0, y: 0 }, { x: t0, y: vm }, { x: t1, y: vm }, { x: t1, y: 0 }], color: C.sec, width: 2.2, dash: 'dash' },
+        { id: 'vt', name: 'v(t) velocímetro', type: 'fn', f: E.v, domain: [0, E.T], color: C.vel, width: 3.2 },
+        pw > 30 && { id: 'lvm', type: 'text', x: t1, y: vm, dx: 6, align: 'left', text: 'v̄', color: C.sec, font: 'italic 800 14px Inter, sans-serif' },
+        { id: 'ahora', name: 'Objeto ahora', type: 'points', data: [{ x: S.t, y: E.v(S.t), info: 'Lectura actual del velocímetro (con signo)' }], color: C.ahora, size: 4.5, shape: 'diamond' },
+        { id: 'P', name: 'v(t₀)', type: 'points', data: [{ x: t0, y: vi, label: 'v(t₀)' }], color: C.tan, size: 6.5 }
+      ]
+    };
+  }
+});
+const graphs = [gXT, gMic, gVT];
+const redrawGraphs = () => graphs.forEach((g) => g.invalidate());
+
+/* ==========================================================================
+   PANEL DE LA SECANTE
+   ========================================================================== */
+function dtMax() { return Math.max(0.001, esc().T - S.t0); }
+function setT0(v) { S.t0 = clampN(v, 0, esc().T - 0.01); S.dt = clampN(S.dt, 0.001, dtMax()); syncSec(); }
+function setDt(v) { S.dt = clampN(v, 0.001, dtMax()); syncSec(); }
+function syncSec() {
+  const E = esc(), t0 = S.t0, t1 = t0 + S.dt, x0 = E.x(t0), x1 = E.x(t1), dx = x1 - x0, vm = dx / S.dt, vi = E.v(t0);
+  $('#t0R').value = t0; $('#t0Val').textContent = `${nf(t0, 2)} s`;
+  const dr = $('#dtR'); dr.max = Math.log10(dtMax()).toFixed(3); dr.value = Math.log10(S.dt);
+  $('#dtVal').textContent = `${fmtDt(S.dt)} s`; $('#dtMaxTxt').textContent = `${nf(dtMax(), 1)} s`;
+  const d = dxDig(S.dt);
+  $('#lDt').textContent = `${fmtDt(S.dt)} s`;
+  $('#lDx').textContent = `${nf(dx, d)} m`;
+  $('#lVm').textContent = `${nf(vm, 4)} m/s`;
+  const wasRevealed = S.revealed;
+  if (S.dt <= 0.0100001 || S.showTan) S.revealed = true;
+  const viBox = $('#lVi'), diff = $('#lDiff');
+  if (S.revealed) {
+    viBox.innerHTML = `<b>${nf(vi, 4)} m/s</b>`;
+    const e = vm - vi, ae = Math.abs(e);
+    diff.textContent = `${e >= 0 ? '+' : ''}${nf(e, 4)} m/s`;
+    diff.className = 'diff-chip ' + (ae < 0.01 ? 'g' : ae < 0.2 ? 'a' : 'r');
+    if (!wasRevealed) {
+      const box = $('#lecVi'); box.classList.remove('reveal-anim'); void box.offsetWidth; box.classList.add('reveal-anim');
+      toast(`¡Descubriste la velocidad instantánea! v(t₀) = ${nf(vi, 3)} m/s`);
+    }
+  } else {
+    viBox.innerHTML = '<span class="lock"><i class="fas fa-lock"></i> Reduce Δt por debajo de 0,01 s o activa la tangente</span>';
+    diff.textContent = '¿?'; diff.className = 'diff-chip r';
+  }
+  $('#fLive').innerHTML =
+    `<span class="b">v̄</span> = <span class="o">Δx</span>/<span class="o">Δt</span> = (${nf(x1, d)} − ${nf(x0, d)}) m / ${fmtDt(S.dt)} s = <span class="b">${nf(vm, 4)} m/s</span>` +
+    (S.revealed ? `<br>Cuando Δt → 0:&nbsp; <span class="b">v̄</span> → <span class="r">v(t₀) = ${nf(vi, 4)} m/s</span> (${nf(Math.abs(vi) * 3.6, 1)} km/h)` : '<br>Cuando Δt → 0:&nbsp; <span class="b">v̄</span> → <span class="r">¿?</span>');
+  updMicro(); updVT();
+  redrawGraphs();
+}
+
+/* tabla */
+function addRow() {
+  const E = esc(), x0 = E.x(S.t0), x1 = E.x(S.t0 + S.dt), dx = x1 - x0, vm = dx / S.dt;
+  if (S.tabla.some((r) => Math.abs(r.dt - S.dt) < 1e-9 && Math.abs(r.t0 - S.t0) < 1e-9)) return;
+  S.tabla.push({ t0: S.t0, dt: S.dt, x0, x1, dx, vm, err: vm - E.v(S.t0) });
+  if (S.tabla.length > 12) S.tabla.shift();
+  renderTabla(true);
+}
+function renderTabla(flashLast) {
+  const tb = $('#tbody');
+  if (!S.tabla.length) { tb.innerHTML = '<tr class="empty"><td colspan="7">La tabla está vacía.</td></tr>'; $('#tfoot').innerHTML = 'Pulsa <b>Hacer Δt → 0</b> para llenar la tabla automáticamente, o mueve Δt y pulsa <b>Anotar</b>.'; return; }
+  tb.innerHTML = S.tabla.map((r, i) => {
+    const d = dxDig(r.dt);
+    return `<tr class="${flashLast && i === S.tabla.length - 1 ? 'new' : ''}"><td>${i + 1}</td><td>${fmtDt(r.dt)}</td><td>${nf(r.x0, d)}</td><td>${nf(r.x1, d)}</td><td>${nf(r.dx, d)}</td><td class="vm">${nf(r.vm, 4)}</td><td>${S.revealed ? (r.err >= 0 ? '+' : '') + nf(r.err, 4) : '¿?'}</td></tr>`;
+  }).join('');
+  const last = S.tabla[S.tabla.length - 1];
+  const sameT0 = S.tabla.every((r) => Math.abs(r.t0 - last.t0) < 1e-9);
+  $('#tfoot').innerHTML = sameT0
+    ? `Todas las filas con t₀ = ${nf(last.t0, 2)} s. Observa la columna azul: a medida que Δt disminuye, v̄ se estabiliza${S.revealed ? ` en <b style="color:var(--rojo)">v(t₀) = ${nf(esc().v(last.t0), 4)} m/s</b>` : ' en un valor fijo… ¿cuál?'}.`
+    : '<i class="fas fa-triangle-exclamation"></i> Hay filas con distintos t₀: para ver el límite, mantén fijo P y cambia solo Δt.';
+}
+
+/* animación Δt → 0 */
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+function tween(get, set, a, b, ms, flagObj, flag) {
+  return new Promise((res) => {
+    const t0 = performance.now(), la = Math.log10(a), lb = Math.log10(b);
+    const step = (now) => {
+      if (flagObj[flag]) { res(); return; }
+      const u = Math.min(1, (now - t0) / ms), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+      set(Math.pow(10, la + (lb - la) * e));
+      if (u < 1) requestAnimationFrame(step); else res();
+    };
+    requestAnimationFrame(step);
+  });
+}
+async function limite() {
+  const btn = $('#btnLimite');
+  if (S.busy) { S.cancel = true; return; }
+  S.busy = true; S.cancel = false;
+  btn.classList.add('busy'); btn.innerHTML = '<i class="fas fa-stop"></i> Detener';
+  const marks = [4, 2, 1, 0.5, 0.1, 0.01, 0.001].filter((m) => m <= dtMax() + 1e-9);
+  S.tabla = []; renderTabla();
+  if (Math.abs(S.dt - marks[0]) > 1e-9) await tween(null, (v) => setDt(v), S.dt, marks[0], 500, S, 'cancel');
+  if (!S.cancel) { setDt(marks[0]); addRow(); await wait(450); }
+  for (let i = 1; i < marks.length && !S.cancel; i++) {
+    await tween(null, (v) => setDt(v), S.dt, marks[i], 750, S, 'cancel');
+    if (S.cancel) break;
+    setDt(marks[i]); addRow(); await wait(420);
+  }
+  S.busy = false; btn.classList.remove('busy'); btn.innerHTML = '<i class="fas fa-compress"></i> Hacer Δt → 0';
+}
+
+/* ------------------------------ microscopio ------------------------------- */
+function updMicro() {
+  const E = esc(), t0 = S.t0, x0 = E.x(t0), vi = E.v(t0);
+  const V = xtView(E), hw = (V.xmax - V.xmin) / 2 / S.zoom, hh = (V.ymax - V.ymin) / 2 / S.zoom;
+  let dev = 0; const a = Math.max(0, t0 - hw), b = Math.min(E.T, t0 + hw);
+  for (let i = 0; i <= 300; i++) { const t = a + (b - a) * i / 300; dev = Math.max(dev, Math.abs(E.x(t) - (x0 + vi * (t - t0)))); }
+  const pct = dev / (2 * hh) * 100;
+  $('#zVal').textContent = `×${S.zoom < 10 ? nf(S.zoom, 1) : nf(S.zoom, 0)}`;
+  $('#zR').value = Math.log10(S.zoom);
+  $('#mAncho').textContent = `${nf(2 * hw, 2 * hw < 0.1 ? 4 : 2)} s`;
+  $('#mPend').textContent = S.revealed ? `${nf(vi, 3)} m/s` : '¿? (sección 2)';
+  $('#mSep').textContent = `${nf(pct, pct < 1 ? 3 : 1)} %`;
+  $('#mMsg').innerHTML = pct < 0.5
+    ? '<b>¡Indistinguibles!</b> A este aumento la curva y su tangente son prácticamente la misma recta. Por eso tiene sentido hablar de «la velocidad en un instante»: es la pendiente de esa recta.'
+    : pct < 5
+      ? 'Casi no se nota la curvatura: la curva ya se parece mucho a la recta tangente. Sigue acercándote.'
+      : 'Todavía se ve que la curva se dobla. Aumenta el microscopio y observa cómo la curva se «endereza» hasta confundirse con la tangente roja.';
+}
+function setZoom(z) { S.zoom = clampN(z, 1, 1000); gMic.home(); updMicro(); }
+async function zoomAnim() {
+  const btn = $('#btnZoom');
+  if (S.zBusy) { S.zCancel = true; return; }
+  S.zBusy = true; S.zCancel = false;
+  const target = S.zoom > 900 ? 1 : 1000;
+  btn.classList.add('busy'); btn.innerHTML = '<i class="fas fa-stop"></i> Detener';
+  await tween(null, setZoom, S.zoom, target, 3200, S, 'zCancel');
+  S.zBusy = false; btn.classList.remove('busy');
+  btn.innerHTML = S.zoom > 900 ? '<i class="fas fa-microscope"></i> Volver a ×1' : '<i class="fas fa-microscope"></i> Acercar hasta ×1000';
+}
+
+/* ------------------------------ gráfica v–t ------------------------------- */
+function updVT() {
+  const E = esc(), t1 = S.t0 + S.dt, dx = E.x(t1) - E.x(S.t0), vm = dx / S.dt;
+  $('#vVi').textContent = S.revealed ? `${nf(E.v(S.t0), 4)} m/s` : '¿? (descúbrela en la sección 2)';
+  $('#vArea').textContent = `${nf(dx, dxDig(S.dt))} m`;
+  $('#vVm').textContent = `${nf(vm, 4)} m/s`;
+}
+
+/* ==========================================================================
+   SELECCIÓN DE ESCENARIO Y CONTROLES
+   ========================================================================== */
+function renderTex(el, tex) {
+  if (window.katex) { try { katex.render(tex, el, { throwOnError: false }); return; } catch (_) { /* */ } }
+  el.textContent = tex;
+}
+function setEsc(id) {
+  S.id = id; const E = esc();
+  S.cancel = true; S.zCancel = true;
+  S.t = 0; S.playing = false; S.t0 = E.t0; S.dt = E.dt; S.revealed = false; S.showTan = false; S.zoom = 1; S.tabla = [];
+  $('#chkTan').checked = false;
+  document.querySelectorAll('.esc-btn').forEach((b) => b.setAttribute('aria-checked', b.dataset.esc === id ? 'true' : 'false'));
+  $('#escDesc').innerHTML = E.desc; $('#escPreg').innerHTML = '<i class="fas fa-circle-question"></i> ' + E.preg;
+  renderTex($('#escFx'), E.xTex);
+  $('#tR').max = E.T; $('#t0R').max = (E.T - 0.01).toFixed(2);
+  setTimeout(() => { S.cancel = false; S.zCancel = false; }, 60);
+  updPlay(); graphs.forEach((g) => g.home()); renderTabla(); syncSec(); updEscenaReadouts();
+  $('#btnZoom').innerHTML = '<i class="fas fa-microscope"></i> Acercar hasta ×1000';
+}
+function updPlay() {
+  $('#btnPlay').innerHTML = S.playing ? '<i class="fas fa-pause"></i> Pausa' : '<i class="fas fa-play"></i> Reproducir';
+}
+document.querySelectorAll('.esc-btn').forEach((b) => b.addEventListener('click', () => setEsc(b.dataset.esc)));
+$('#btnPlay').addEventListener('click', () => { if (!S.playing && S.t >= esc().T - 1e-9) S.t = 0; S.playing = !S.playing; updPlay(); });
+$('#btnReset').addEventListener('click', () => { S.playing = false; S.t = 0; updPlay(); updEscenaReadouts(); redrawGraphs(); });
+$('#btnMenos').addEventListener('click', () => { S.playing = false; S.t = clampN(Math.round((S.t - 0.1) * 100) / 100, 0, esc().T); updPlay(); updEscenaReadouts(); redrawGraphs(); });
+$('#btnMas').addEventListener('click', () => { S.playing = false; S.t = clampN(Math.round((S.t + 0.1) * 100) / 100, 0, esc().T); updPlay(); updEscenaReadouts(); redrawGraphs(); });
+$('#tR').addEventListener('input', (e) => { S.playing = false; S.t = parseFloat(e.target.value); updPlay(); updEscenaReadouts(); redrawGraphs(); });
+$('#selVel').addEventListener('change', (e) => { S.speed = parseFloat(e.target.value); });
+$('#chkCinta').addEventListener('change', (e) => { S.cinta = e.target.checked; });
+$('#chkVector').addEventListener('change', (e) => { S.vector = e.target.checked; });
+$('#chkPQ').addEventListener('change', (e) => { S.pq = e.target.checked; });
+$('#btnUsarP').addEventListener('click', () => {
+  S.playing = false; updPlay(); setT0(S.t);
+  toast(`P fijado en t₀ = ${nf(S.t0, 2)} s`);
+  $('#s-secante').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('#t0R').addEventListener('input', (e) => setT0(parseFloat(e.target.value)));
+$('#dtR').addEventListener('input', (e) => setDt(Math.pow(10, parseFloat(e.target.value))));
+$('#btnLimite').addEventListener('click', limite);
+$('#btnFila').addEventListener('click', addRow);
+$('#btnBorrar').addEventListener('click', () => { S.tabla = []; renderTabla(); });
+$('#chkSec').addEventListener('change', (e) => { S.showSec = e.target.checked; redrawGraphs(); });
+$('#chkTan').addEventListener('change', (e) => { S.showTan = e.target.checked; syncSec(); renderTabla(); });
+$('#chkTri').addEventListener('change', (e) => { S.showTri = e.target.checked; redrawGraphs(); });
+$('#zR').addEventListener('input', (e) => setZoom(Math.pow(10, parseFloat(e.target.value))));
+$('#btnZoom').addEventListener('click', zoomAnim);
+
+let toastT = 0;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ------------------------------ bucle principal --------------------------- */
+let last = performance.now(), lastRead = 0;
+function loop(now) {
+  const dtr = Math.min(0.05, (now - last) / 1000); last = now;
+  const E = esc();
+  if (S.playing) {
+    S.t = Math.min(E.T, S.t + dtr * S.speed);
+    if (S.t >= E.T - 1e-9) { S.playing = false; updPlay(); }
+    if (now - lastRead > 50) { updEscenaReadouts(); lastRead = now; }
+    gXT.invalidate(); gVT.invalidate();
+  }
+  if (E.suelo === 'rio') streaks.forEach((s) => { s.xm += Math.max(0, 3 - s.xm / 4) * dtr * 0.6; if (s.xm > 10.6) s.xm = Math.random() * 1.2; });
+  drawScene(now); drawGauge();
+  requestAnimationFrame(loop);
+}
+
+/* ==========================================================================
+   PONTE A PRUEBA
+   ========================================================================== */
+const QUIZ = [
+  { q: 'El velocímetro de un bus eléctrico marca 36 km/h. ¿Qué está midiendo?', o: ['La velocidad media de todo el recorrido', 'La rapidez instantánea del bus en ese momento', 'La distancia total recorrida', 'La aceleración del bus'], a: 1, e: 'El velocímetro responde a lo que pasa en cada instante: muestra la rapidez instantánea (el tamaño de la velocidad instantánea). 36 km/h = 10 m/s.' },
+  { q: 'En una gráfica posición–tiempo, la velocidad instantánea en el punto P es…', o: ['la pendiente de la recta secante PQ', 'el valor de x en P', 'la pendiente de la recta tangente a la curva en P', 'el área bajo la curva x(t)'], a: 2, e: 'La secante da la velocidad media en [t₀, t₀+Δt]. Cuando Δt → 0 la secante se convierte en la tangente, y su pendiente es v(t₀).' },
+  { q: 'Si hacemos Δt cada vez más pequeño, la velocidad media Δx/Δt en [t₀, t₀+Δt]…', o: ['se vuelve cero porque Δx tiende a cero', 'se acerca cada vez más a la velocidad instantánea v(t₀)', 'crece sin límite porque dividimos entre un número muy pequeño', 'no cambia nunca'], a: 1, e: 'Δx y Δt se hacen pequeños a la vez; su cociente se estabiliza en un valor: la velocidad instantánea. Lo viste en la tabla.' },
+  { q: 'Para el bus, x(t) = 0,6·t² (en metros). ¿Cuál es su velocidad instantánea en t = 5 s?', o: ['3 m/s', '6 m/s', '15 m/s', '0,6 m/s'], a: 1, e: 'v(t) = 1,2·t, así que v(5) = 6 m/s. Ojo: 3 m/s es la velocidad media entre 0 y 5 s (15 m / 5 s), no la instantánea.' },
+  { q: 'El dron llega al punto más lejano (sobre el nido, t = 10 s) y empieza a regresar. En ese instante su velocidad instantánea es…', o: ['máxima', '0 m/s: la tangente a x(t) es horizontal', '4 m/s, porque recorrió 40 m en 10 s', '−6,28 m/s'], a: 1, e: 'En el punto más alto de la gráfica x–t la tangente es horizontal (pendiente cero): el dron está quieto un instante mientras cambia de sentido. 4 m/s es su velocidad media entre 0 y 10 s.' },
+  { q: 'Con el método del flotador cronometras cuánto tarda en recorrer un tramo de 10 m del río. ¿Qué obtienes, y cómo te acercas más a la velocidad instantánea?', o: ['La velocidad instantánea; no hay que cambiar nada', 'La velocidad media del tramo; usando tramos (e intervalos de tiempo) cada vez más cortos', 'La aceleración del río; usando tramos más largos', 'El caudal; midiendo la profundidad'], a: 1, e: 'Δx/Δt en un tramo de 10 m es una velocidad media. Al acortar el tramo (y con él Δt) la medida se acerca a la velocidad en un punto e instante, como la que mide un correntómetro.' }
+];
+const qState = QUIZ.map(() => null);
+function renderQuiz() {
+  $('#quiz').innerHTML = QUIZ.map((q, i) => `
+    <div class="q" data-q="${i}">
+      <h3><span>${i + 1}</span>${q.q}</h3>
+      <div class="opts">${q.o.map((o, j) => `<button class="opt" data-j="${j}">${String.fromCharCode(97 + j)}) ${o}</button>`).join('')}</div>
+      <div class="fb" hidden></div>
+    </div>`).join('');
+  document.querySelectorAll('.q').forEach((el) => {
+    const i = +el.dataset.q;
+    el.querySelectorAll('.opt').forEach((b) => b.addEventListener('click', () => {
+      if (qState[i] !== null) return;
+      const j = +b.dataset.j, ok = j === QUIZ[i].a;
+      qState[i] = ok;
+      el.querySelectorAll('.opt').forEach((x) => { x.disabled = true; const jj = +x.dataset.j; if (jj === QUIZ[i].a) x.classList.add('ok'); else if (jj === j) x.classList.add('bad'); });
+      const fb = el.querySelector('.fb'); fb.hidden = false; fb.className = 'fb ' + (ok ? 'ok' : 'bad');
+      fb.innerHTML = `<b>${ok ? '¡Correcto!' : 'No es esa.'}</b> ${QUIZ[i].e}`;
+      updScore();
+    }));
+  });
+  updScore();
+}
+function updScore() {
+  const ok = qState.filter((x) => x === true).length, done = qState.filter((x) => x !== null).length;
+  $('#qScore').textContent = `${ok} / ${QUIZ.length}`;
+  $('#qBar').style.width = `${(done / QUIZ.length) * 100}%`;
+  const fin = $('#qFinal');
+  if (done === QUIZ.length) {
+    const nota = 1 + 4 * ok / QUIZ.length;
+    fin.classList.add('show');
+    fin.innerHTML = `<h3 style="margin:0 0 .3em"><i class="fas fa-flag-checkered"></i> Resultado: ${ok} de ${QUIZ.length} · nota ${nf(nota, 1)}</h3><p style="margin:0">${ok === QUIZ.length ? '¡Excelente! Dominas la idea de velocidad instantánea.' : ok >= 4 ? 'Muy bien. Repasa las preguntas que fallaste y vuelve a la simulación para comprobarlo.' : 'Vuelve a las secciones 2 y 3: encoge Δt, mira la tabla y usa el microscopio. Luego reintenta.'}</p>`;
+  } else fin.classList.remove('show');
+}
+$('#qReset').addEventListener('click', () => { qState.fill(null); renderQuiz(); });
+
+/* ------------------------------ portada ----------------------------------- */
+(function heroTicks() {
+  const gT = $('#heroTicks'), gN = $('#heroNums'); let t = '', n = '';
+  for (let v = 0; v <= 120; v += 10) {
+    const a = PI + (v / 120) * PI, c = Math.cos(a), s = Math.sin(a), major = v % 20 === 0;
+    t += `<line x1="${160 + 108 * c}" y1="${170 + 108 * s}" x2="${160 + (major ? 96 : 101) * c}" y2="${170 + (major ? 96 : 101) * s}"/>`;
+    if (major) n += `<text x="${160 + 82 * c}" y="${174 + 82 * s}">${v}</text>`;
+  }
+  gT.innerHTML = t; gN.innerHTML = n;
+})();
+
+/* ------------------------------ inicio ------------------------------------ */
+function init() {
+  fit(SCN); fit(GAU);
+  setEsc('bus');
+  renderQuiz();
+  requestAnimationFrame(loop);
+}
+init();
+window.addEventListener('load', () => {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'canvas'] });
+  }
+  renderTex($('#escFx'), esc().xTex);
+  fit(SCN); fit(GAU); graphs.forEach((g) => g.resize());
+});
+</script>
+</body>
+</html>
